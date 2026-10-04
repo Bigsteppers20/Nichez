@@ -1,0 +1,84 @@
+# Local S3-compatible storage standing in for Cloudflare R2.
+#
+# MinIO Inc. stopped publishing official images in Oct 2025 (minio/minio and
+# minio/mc are gone from Docker Hub). This uses the pgsty/minio community fork,
+# which is the same MinIO server and mc client, kept patched and tagged.
+#
+# Credentials come from infra/.env (gitignored). Copy infra/.env.example first.
+# Start/stop through scripts/dev-up and scripts/dev-down.
+
+name: nichez-local
+
+services:
+  minio:
+    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?set MINIO_ROOT_USER in infra/.env}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD in infra/.env}
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # web console
+    volumes:
+      - minio-data:/data
+    restart: unless-stopped
+
+  # One-shot: creates the private "media" bucket and a service user whose
+  # policy covers only that bucket. Safe to re-run; every step is idempotent.
+  minio-init:
+    image: pgsty/mc:RELEASE.2026-09-16T00-00-00Z
+    depends_on:
+      - minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?set MINIO_ROOT_USER in infra/.env}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD in infra/.env}
+      MINIO_SERVICE_ACCESS_KEY: ${MINIO_SERVICE_ACCESS_KEY:?set MINIO_SERVICE_ACCESS_KEY in infra/.env}
+      MINIO_SERVICE_SECRET_KEY: ${MINIO_SERVICE_SECRET_KEY:?set MINIO_SERVICE_SECRET_KEY in infra/.env}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -eu
+        echo "minio-init: waiting for MinIO..."
+        tries=0
+        until mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD" >/dev/null 2>&1; do
+          tries=$$((tries + 1))
+          if [ "$$tries" -ge 60 ]; then echo "minio-init: MinIO not reachable after 60s" >&2; exit 1; fi
+          sleep 1
+        done
+
+        mc mb --ignore-existing local/media
+        mc anonymous set none local/media
+
+        cat > /tmp/media-rw.json <<'POLICY'
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": ["s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads"],
+              "Resource": ["arn:aws:s3:::media"]
+            },
+            {
+              "Effect": "Allow",
+              "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject",
+                         "s3:AbortMultipartUpload", "s3:ListMultipartUploadParts"],
+              "Resource": ["arn:aws:s3:::media/*"]
+            }
+          ]
+        }
+        POLICY
+        mc admin policy create local media-rw /tmp/media-rw.json
+
+        # "user add" creates the user or resets its secret to the value in infra/.env.
+        mc admin user add local "$$MINIO_SERVICE_ACCESS_KEY" "$$MINIO_SERVICE_SECRET_KEY"
+        # The image is minimal (no grep), so match with a shell case instead.
+        info=$$(mc admin user info local "$$MINIO_SERVICE_ACCESS_KEY")
+        case "$$info" in
+          *media-rw*) echo "minio-init: policy media-rw already attached" ;;
+          *) mc admin policy attach local media-rw --user "$$MINIO_SERVICE_ACCESS_KEY" ;;
+        esac
+        echo "minio-init: bucket 'media' and service user ready"
+    restart: "no"
+
+volumes:
+  minio-data:
