@@ -1,0 +1,6 @@
+### Public liveness check. No token needed.
+GET {{baseUrl}}/api/v1/ping
+
+### Same call with a bad token still succeeds: public routes ignore the header.
+GET {{baseUrl}}/api/v1/ping
+Authorization: Bearer not-a-real-token
