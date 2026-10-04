@@ -1,0 +1,7 @@
+# Deployed environment (Cloud Run / Oracle).
+#
+# Every value comes from real environment variables set by the platform's
+# secret store. Do NOT add spring.config.import here: prod never reads .env.
+spring:
+  jpa:
+    show-sql: false

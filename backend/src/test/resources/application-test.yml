@@ -1,0 +1,27 @@
+# Automated tests. Fixed fake values so tests never depend on a developer's .env.
+# The database URL is replaced by Testcontainers (@ServiceConnection) where a
+# test starts Postgres; the value here only satisfies validation.
+db:
+  url: jdbc:postgresql://localhost:5432/test-placeholder
+  username: test
+  password: test
+
+auth:
+  mode: JWKS
+  jwks-uri: https://example.invalid/auth/v1/.well-known/jwks.json
+  issuer: https://example.invalid/auth/v1
+
+storage:
+  endpoint: http://localhost:9000
+  public-endpoint: http://localhost:9000
+  region: us-east-1
+  access-key: test-access-key
+  secret-key: test-secret-key
+  bucket: media
+
+media:
+  url-provider: presigned
+  ttl: 15m
+
+cors:
+  allowed-origins: http://localhost:3000

@@ -1,0 +1,60 @@
+# Base configuration shared by every profile.
+#
+# Profiles:
+#   local - developer machine; also reads backend/.env (application-local.yml)
+#   test  - automated tests; fixed fake values (application-test.yml)
+#   prod  - deployed; values come ONLY from real environment variables
+#
+# Every app setting below maps an environment variable onto a validated
+# @ConfigurationProperties record in app.nichez.config. A blank value means
+# "not set": required ones fail startup with a message naming the property.
+# This file must never import .env; only application-local.yml does.
+
+spring:
+  application:
+    name: api
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      # Schema is owned by supabase/migrations; JPA only validates it.
+      ddl-auto: validate
+
+db:
+  url: ${DB_URL:}
+  username: ${DB_USERNAME:}
+  password: ${DB_PASSWORD:}
+
+auth:
+  mode: ${AUTH_MODE:}                  # HS256 or JWKS
+  jwt-secret: ${SUPABASE_JWT_SECRET:}  # required when mode = HS256
+  jwks-uri: ${SUPABASE_JWKS_URI:}      # required when mode = JWKS
+  issuer: ${SUPABASE_JWT_ISSUER:}
+
+storage:
+  endpoint: ${STORAGE_ENDPOINT:}               # server-side calls (HEAD, DELETE)
+  public-endpoint: ${STORAGE_PUBLIC_ENDPOINT:} # host baked into presigned URLs
+  region: ${STORAGE_REGION:}
+  access-key: ${STORAGE_ACCESS_KEY:}
+  secret-key: ${STORAGE_SECRET_KEY:}
+  bucket: ${STORAGE_BUCKET:}
+
+media:
+  url-provider: ${MEDIA_URL_PROVIDER:}         # presigned or worker
+  ttl: ${MEDIA_URL_TTL:15m}
+  worker-base-url: ${WORKER_BASE_URL:}         # required when url-provider = worker
+  token-secret: ${PLAYBACK_TOKEN_SECRET:}      # required when url-provider = worker
+
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:}
+
+rate-limit:
+  enabled: ${RATE_LIMIT_ENABLED:true}
+  requests-per-minute: ${RATE_LIMIT_REQUESTS_PER_MINUTE:120}
+  burst: ${RATE_LIMIT_BURST:30}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

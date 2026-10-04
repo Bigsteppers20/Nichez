@@ -1,0 +1,7 @@
+# Developer machine. Values come from backend/.env (copy backend/.env.example).
+# Real environment variables still win over the file.
+# Working directory must be backend/: the VS Code launch config and
+# ./mvnw spring-boot:run both use it.
+spring:
+  config:
+    import: optional:file:.env[.properties]
