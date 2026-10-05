@@ -42,9 +42,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ApiException.class)
     ResponseEntity<Object> handleApi(ApiException ex, HttpServletRequest request) {
         ProblemDetail problem = ProblemFactory.create(ex.status(), ex.code(), ex.getMessage(), request);
+        ex.properties().forEach(problem::setProperty);
         HttpHeaders headers = new HttpHeaders();
-        if (ex instanceof RateLimitedException limited && limited.retryAfter() != null) {
-            headers.set(HttpHeaders.RETRY_AFTER, Long.toString(Math.max(1, limited.retryAfter().toSeconds())));
+        if (ex.retryAfter() != null) {
+            headers.set(HttpHeaders.RETRY_AFTER, Long.toString(Math.max(1, ex.retryAfter().toSeconds())));
         }
         return ResponseEntity.status(ex.status()).headers(headers).body(problem);
     }

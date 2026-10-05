@@ -1,0 +1,19 @@
+### Posts. Needs a signed-in user.
+### Get a token by signing in (see auth.http) and paste its accessToken here:
+@token = <paste accessToken>
+@postId = <paste a post id>
+
+### Delete a post -> 204. The author deletes it; a moderator of its niche or an admin removes it.
+DELETE {{baseUrl}}/api/v1/posts/{{postId}}
+Authorization: Bearer {{token}}
+
+### 404 POST_NOT_FOUND: run the delete again, or as a user who is not the author, a moderator or an admin
+DELETE {{baseUrl}}/api/v1/posts/{{postId}}
+Authorization: Bearer {{token}}
+
+### 400 BAD_REQUEST: not a UUID
+DELETE {{baseUrl}}/api/v1/posts/not-a-uuid
+Authorization: Bearer {{token}}
+
+### 401 without a token
+DELETE {{baseUrl}}/api/v1/posts/{{postId}}

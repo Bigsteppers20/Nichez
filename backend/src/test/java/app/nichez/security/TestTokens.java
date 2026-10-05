@@ -16,10 +16,10 @@ import java.util.Map;
 import java.util.UUID;
 
 /** Builds HS256 tokens that look like Supabase access tokens, signed locally. */
-final class TestTokens {
+public final class TestTokens {
 
-    static final String SECRET = "test-only-jwt-secret-that-is-at-least-32-chars";
-    static final String ISSUER = "https://test.invalid/auth/v1";
+    public static final String SECRET = "test-only-jwt-secret-that-is-at-least-32-chars";
+    public static final String ISSUER = "https://test.invalid/auth/v1";
 
     private String signingSecret = SECRET;
     private String subject = UUID.randomUUID().toString();
@@ -29,11 +29,11 @@ final class TestTokens {
     private Map<String, Object> appMetadata = Map.of("provider", "phone");
     private Map<String, Object> userMetadata = Map.of();
 
-    static TestTokens valid() {
+    public static TestTokens valid() {
         return new TestTokens();
     }
 
-    TestTokens subject(String value) {
+    public TestTokens subject(String value) {
         this.subject = value;
         return this;
     }
@@ -53,12 +53,12 @@ final class TestTokens {
         return this;
     }
 
-    TestTokens appMetadata(Map<String, Object> value) {
+    public TestTokens appMetadata(Map<String, Object> value) {
         this.appMetadata = value;
         return this;
     }
 
-    TestTokens userMetadata(Map<String, Object> value) {
+    public TestTokens userMetadata(Map<String, Object> value) {
         this.userMetadata = value;
         return this;
     }
@@ -68,11 +68,11 @@ final class TestTokens {
         return this;
     }
 
-    String subject() {
+    public String subject() {
         return subject;
     }
 
-    String build() {
+    public String build() {
         try {
             JWTClaimsSet claims = new JWTClaimsSet.Builder()
                     .subject(subject)

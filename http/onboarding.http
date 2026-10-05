@@ -1,0 +1,42 @@
+### Onboarding: handle. Both calls need a signed-in user.
+### Get a token by signing in (see auth.http) and paste its accessToken here:
+@token = <paste accessToken>
+
+### Is a handle free? -> { available, suggestions[] }. Rule breakers are just available:false.
+GET {{baseUrl}}/api/v1/handles/check?handle=pivotmaster
+Authorization: Bearer {{token}}
+
+### Taken, reserved or lookalike -> available:false plus 3 free suggestions
+GET {{baseUrl}}/api/v1/handles/check?handle=ad.min
+Authorization: Bearer {{token}}
+
+### Claim a handle -> { handle }
+PUT {{baseUrl}}/api/v1/me/handle
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "handle": "pivotmaster" }
+
+### 400 HANDLE_INVALID (too short)
+PUT {{baseUrl}}/api/v1/me/handle
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "handle": "ab" }
+
+### 400 HANDLE_RESERVED (a lookalike of "admin")
+PUT {{baseUrl}}/api/v1/me/handle
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "handle": "adm1n" }
+
+### 409 HANDLE_TAKEN: claim a handle another account already holds, in any case
+PUT {{baseUrl}}/api/v1/me/handle
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "handle": "PIVOTMASTER" }
+
+### 401 without a token
+GET {{baseUrl}}/api/v1/handles/check?handle=pivotmaster

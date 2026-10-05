@@ -1,5 +1,5 @@
 # Automated tests. Fixed fake values so tests never depend on a developer's .env.
-# The database URL is replaced by Testcontainers (@ServiceConnection) where a
+# The database URL is replaced by TestPostgres (Testcontainers or embedded) where a
 # test starts Postgres; the value here only satisfies validation.
 db:
   url: jdbc:postgresql://localhost:5432/test-placeholder
@@ -10,6 +10,10 @@ auth:
   mode: JWKS
   jwks-uri: https://example.invalid/auth/v1/.well-known/jwks.json
   issuer: https://example.invalid/auth/v1
+
+supabase:
+  url: http://localhost:54321
+  anon-key: test-anon-key
 
 storage:
   endpoint: http://localhost:9000

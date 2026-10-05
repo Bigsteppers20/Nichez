@@ -1,0 +1,19 @@
+### Niches. Needs a signed-in user.
+### Get a token by signing in (see auth.http) and paste its accessToken here:
+@token = <paste accessToken>
+@nicheId = <paste a niche id>
+
+### G4 reach -> { postsToday, freshWindow }. Cached 60 s per niche.
+GET {{baseUrl}}/api/v1/niches/{{nicheId}}/stats
+Authorization: Bearer {{token}}
+
+### 404 NICHE_NOT_FOUND
+GET {{baseUrl}}/api/v1/niches/00000000-0000-0000-0000-000000000000/stats
+Authorization: Bearer {{token}}
+
+### 400 BAD_REQUEST: not a UUID
+GET {{baseUrl}}/api/v1/niches/football/stats
+Authorization: Bearer {{token}}
+
+### 401 without a token
+GET {{baseUrl}}/api/v1/niches/{{nicheId}}/stats

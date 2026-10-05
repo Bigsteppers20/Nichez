@@ -1,0 +1,56 @@
+### Phone sign-in. All three routes are public (no token) and rate limited.
+### Local test numbers never send an SMS: supabase/config.toml [auth.sms.test_otp]
+### +1 555 555 0101 always accepts code 101010. (Only works if US is in auth.sms.allowed-countries.)
+
+### 1. Start. Same response whether or not the number has an account.
+# @name start
+POST {{baseUrl}}/api/v1/auth/phone/start
+Content-Type: application/json
+
+{ "dialCode": "+1", "nationalNumber": "555 555 0101" }
+
+###
+@challengeId = {{start.response.body.$.challengeId}}
+
+### 2. Verify with the right code -> { session: { accessToken, refreshToken, expiresAt }, isNewUser }
+POST {{baseUrl}}/api/v1/auth/phone/verify
+Content-Type: application/json
+
+{ "challengeId": "{{challengeId}}", "code": "101010" }
+
+### 2b. Wrong code -> 400 WRONG_CODE with attemptsLeft (2, 1, 0). The next call is 423 LOCKED with Retry-After.
+POST {{baseUrl}}/api/v1/auth/phone/verify
+Content-Type: application/json
+
+{ "challengeId": "{{challengeId}}", "code": "000000" }
+
+### 3. Resend. 60 s cooldown (429 + Retry-After before that) and the hourly limits apply.
+POST {{baseUrl}}/api/v1/auth/phone/resend
+Content-Type: application/json
+
+{ "challengeId": "{{challengeId}}" }
+
+### Rejections
+### 400 INVALID_PHONE
+POST {{baseUrl}}/api/v1/auth/phone/start
+Content-Type: application/json
+
+{ "dialCode": "+234", "nationalNumber": "123" }
+
+### 400 COUNTRY_NOT_SUPPORTED (France is not in the default allow-list)
+POST {{baseUrl}}/api/v1/auth/phone/start
+Content-Type: application/json
+
+{ "dialCode": "+33", "nationalNumber": "6 12 34 56 78" }
+
+### 404 CHALLENGE_NOT_FOUND
+POST {{baseUrl}}/api/v1/auth/phone/verify
+Content-Type: application/json
+
+{ "challengeId": "00000000-0000-0000-0000-000000000000", "code": "123456" }
+
+### /auth/phone/call is not implemented (decision 12): 401 without a token, 404 with one.
+POST {{baseUrl}}/api/v1/auth/phone/call
+Content-Type: application/json
+
+{}

@@ -38,14 +38,26 @@ Served under `/api/v1`. Errors on every endpoint follow [API_ERRORS.md](API_ERRO
 
 | Method | Path | Used by | Notes |
 |---|---|---|---|
-| `POST` | `/auth/phone/start` | A2 Log in | `{ dialCode, nationalNumber }` → `{ challengeId, resendAfterSeconds }` |
-| `POST` | `/auth/phone/verify` | A3 Verify OTP | `{ challengeId, code }` → `{ session, isNewUser }`. On failure return `{ error, attemptsLeft }` — J3 renders the counter from it |
-| `POST` | `/auth/phone/resend` | A3 | → `{ resendAfterSeconds }` |
-| `POST` | `/auth/phone/call` | J3 | The voice fallback in the failure banner |
+| `POST` | `/auth/phone/start` | A2 Log in | **Public, rate limited.** `{ dialCode, nationalNumber }` → `{ challengeId, resendAfterSeconds }`. Identical response whether or not the number has an account |
+| `POST` | `/auth/phone/verify` | A3 Verify OTP | **Public, rate limited.** `{ challengeId, code }` → `{ session, isNewUser }`. A wrong code returns 400 `WRONG_CODE` with `attemptsLeft` — J3 renders the counter from it |
+| `POST` | `/auth/phone/resend` | A3 | **Public, rate limited.** `{ challengeId }` → `{ resendAfterSeconds }` |
+| `POST` | `/auth/phone/call` | J3 | **Not implemented (decision 12).** The voice fallback is not built; the route does not exist |
 | `POST` | `/auth/apple` | A1, A2 | `{ identityToken }` → `{ session, isNewUser }` |
 | `POST` | `/auth/google` | A1, A2 | `{ idToken }` → `{ session, isNewUser }` |
 | `POST` | `/auth/logout` | C5, J5 | |
 | `GET` | `/auth/session` | app boot | Drives `AuthGuard` |
+
+`session` — `{ accessToken, refreshToken, expiresAt }`. `expiresAt` is an ISO-8601
+UTC instant: when the access token stops working. Every endpoint that returns a
+`session` uses this shape.
+
+Phone sign-in rules (all limits are config, `auth.sms.*`):
+
+- `dialCode` is `+234` or `234`; `nationalNumber` may carry spaces, dashes or a leading `0`. Both are parsed to E.164 server-side.
+- Only countries in `auth.sms.allowed-countries` are accepted.
+- At most 5 SMS per phone and 20 per IP per hour (`/start` and `/resend` both count), and a 60 s cooldown between sends of one challenge. Over a limit: 429 `RATE_LIMITED` with `Retry-After`.
+- A code is valid for 5 minutes from the last send. 3 wrong codes lock the phone for 30 minutes: `/verify` answers 423 `LOCKED` and `/start` and `/resend` answer 429, both with `Retry-After`. The third wrong code itself still answers 400 with `attemptsLeft: 0`.
+- A wrong code is `{ code: "WRONG_CODE", attemptsLeft, ... }` in the standard error body ([API_ERRORS.md](API_ERRORS.md)); the field is `code`, not `error`.
 
 **Attempt limiting matters to the UI.** J3 shows "2 tries left", so
 `attemptsLeft` must come back on a wrong code, not just a 401.
@@ -56,13 +68,19 @@ Served under `/api/v1`. Errors on every endpoint follow [API_ERRORS.md](API_ERRO
 
 | Method | Path | Used by | Notes |
 |---|---|---|---|
-| `GET` | `/handles/check?handle=` | A4 Username | → `{ available: bool, suggestions: string[] }`. Debounce client-side; the screen has `HandleStatus.checking` for the in-flight state |
-| `PUT` | `/me/handle` | A4 | `{ handle }` |
+| `GET` | `/handles/check?handle=` | A4 Username | → `{ available: bool, suggestions: string[] }`. Needs a signed-in user; 60 per minute per user (429 `RATE_LIMITED`). A handle that breaks a rule is `available: false`, not an error. `suggestions` is empty when available, otherwise 3 free alternatives (the input plus digits or niche words). Debounce client-side; the screen has `HandleStatus.checking` for the in-flight state |
+| `PUT` | `/me/handle` | A4 | `{ handle }` → `{ handle }`. Same rules as the check. 400 `HANDLE_INVALID`, 400 `HANDLE_RESERVED`, 409 `HANDLE_TAKEN`. Sets `onboarded_at` once the user has a handle and at least 3 niches |
 | `GET` | `/niches/taxonomy` | A5 Pick niches | → `NicheGroup[]`: `{ name, strict, options: [{ id, label }] }`. **`strict: true`** makes the group single-choice (Religion). The client enforces it, the server must too |
 | `PUT` | `/me/niches` | A5, C5, H3 | `{ nicheIds: string[] }` — min 3 |
 | `GET` | `/creators/suggested` | A6 | → `SuggestedCreator[]`: `{ id, name, handle, niche, imageUrl, following }`. `niche` is *why* they're suggested |
 | `POST` | `/users/:id/follow` | A6, H1, H2, E1 | |
 | `DELETE` | `/users/:id/follow` | same | |
+
+Handle rules (`HandleRules`):
+
+- 3 to 30 characters from `a-z A-Z 0-9 _ .`, with at least one letter or digit. Stored as typed, compared ignoring case.
+- Reserved handles (table `reserved_handles`) are refused in any letter case.
+- A **lookalike** of a reserved handle or of a verified account's handle is refused too. Both sides are folded to a skeleton: lower case; `0`→`o`; `1`, `i`, `l`→`l`; `5`→`s`; dots and underscores removed; `rn`→`m`. So `ad.min`, `adm1n` and `adrnin` all collide with `admin`. A verified user's own handle is not compared against itself.
 
 ---
 
@@ -149,9 +167,24 @@ optimistically — so the value has to be authoritative on the next fetch.
 |---|---|---|---|
 | `POST` | `/uploads/sign` | C1, G3 | → `{ uploadUrl, mediaId }` for a direct-to-storage PUT |
 | `PUT` | `<uploadUrl>` | C1, G3 | Progress drives the in-well bar (C1) and the dot spinner (G3) |
-| `POST` | `/posts` | C1, G2 | `{ mediaId, caption, nicheId, audience, allowComments, taggedUserIds }` |
+| `POST` | `/posts` | C1, G2 | `{ mediaId, caption, nicheId, audience, allowComments, taggedUserIds }`. `audience` is `everyone` (the default) or `niche_members` (only members of the niche it is posted to). `caption` is at most 2200 characters |
 | `GET` | `/me/niches` | C1, G2, D4 | The "POST TO NICHE" chips |
-| `GET` | `/niches/:id/stats` | G4 Published | → `{ postsToday, freshWindow }` — G4 shows real reach, so don't fake these |
+| `GET` | `/niches/:id/stats` | G4 Published | → `{ postsToday, freshWindow }` — G4 shows real reach, so don't fake these. Rules below. 404 `NICHE_NOT_FOUND` |
+| `DELETE` | `/posts/:id` | `ConfirmDialog` (no screen wired yet) | **Proposed** (FEATURE_MANIFEST). → 204, no body. The author deletes; a moderator of the post's niche or an admin removes. Anyone else, an unknown id, and a post already deleted or removed: 404 `POST_NOT_FOUND`. Rules below |
+
+`GET /niches/:id/stats` rules:
+
+- `postsToday` — published posts in the niche over the **last 24 hours** (rolling, not since midnight). Deleted, removed and still-processing posts don't count. The same for every viewer.
+- `freshWindow` — how long a new post can expect to stay at the top of Fresh, worded to finish G4's "Yours is at the top of Fresh for …". It is the average gap between posts over the same 24 hours (24 h ÷ `postsToday`): `"the next minute"`, `"the next 8 minutes"`, `"the next 35 minutes"` (rounded to 5 from 15 minutes up), `"the next hour"`, `"the next 12 hours"`, or `"the next day"` when the niche had at most one post.
+- Cached per niche for 60 s (`Cache-Control: private, max-age=60`). Deleting or removing a published post refreshes its niche at once.
+
+`DELETE /posts/:id` rules:
+
+- A soft delete: the post and its media rows stay. The author's delete sets status `deleted`; a moderator's or admin's sets `removed`. An author who also moderates the niche still deletes. Admin means `app_metadata.role = "admin"` in the token.
+- Allowed while the post is `processing`, `published` or `failed`.
+- The author's `postCount` drops by one if the post was published.
+- Every delete or removal is written to the audit trail (who, in what role, which post).
+- The stored files of a deleted or removed post are erased **30 days** after the takedown by a daily job. Until then a removal can be reviewed.
 
 Upload is **non-blocking by design**: G3 says "keep scrolling, we'll finish in
 the background". The endpoint should tolerate the app being backgrounded, and

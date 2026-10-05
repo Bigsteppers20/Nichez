@@ -34,6 +34,10 @@ class SecurityConfig {
             "/api/v1/ping",
             "/actuator/health",
             "/actuator/health/**",
+            // Phone sign-in. Public because the caller has no session yet; abuse is limited in PhoneAuthService.
+            "/api/v1/auth/phone/start",
+            "/api/v1/auth/phone/verify",
+            "/api/v1/auth/phone/resend",
     };
 
     @Bean

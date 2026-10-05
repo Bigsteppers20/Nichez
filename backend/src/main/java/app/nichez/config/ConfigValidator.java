@@ -29,6 +29,11 @@ public class ConfigValidator implements ApplicationListener<ApplicationEnvironme
     static final List<Class<?>> PROPERTY_RECORDS = List.of(
             DbProperties.class,
             AuthProperties.class,
+            SmsAuthProperties.class,
+            SupabaseProperties.class,
+            ProfileProperties.class,
+            PostProperties.class,
+            UploadProperties.class,
             StorageProperties.class,
             MediaUrlProperties.class,
             CorsProperties.class,

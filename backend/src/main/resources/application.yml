@@ -31,6 +31,36 @@ auth:
   jwks-uri: ${SUPABASE_JWKS_URI:}      # required when mode = JWKS
   issuer: ${SUPABASE_JWT_ISSUER:}
 
+  sms:
+    # ISO region codes. Placeholder default: confirm the launch countries.
+    allowed-countries: ${AUTH_SMS_ALLOWED_COUNTRIES:NG,GH,KE,ZA,GB,US}
+    max-sends-per-phone-per-hour: ${AUTH_SMS_MAX_SENDS_PER_PHONE_PER_HOUR:5}
+    max-sends-per-ip-per-hour: ${AUTH_SMS_MAX_SENDS_PER_IP_PER_HOUR:20}
+    resend-cooldown: ${AUTH_SMS_RESEND_COOLDOWN:60s}
+    code-ttl: ${AUTH_SMS_CODE_TTL:5m}
+    max-attempts: ${AUTH_SMS_MAX_ATTEMPTS:3}
+    lockout: ${AUTH_SMS_LOCKOUT:30m}
+
+profile:
+  handle-check-per-minute: ${PROFILE_HANDLE_CHECK_PER_MINUTE:60}   # per signed-in user
+
+posts:
+  media-retention: ${POSTS_MEDIA_RETENTION:30d}      # deleted/removed posts' files are kept this long
+  purge-cron: ${POSTS_PURGE_CRON:0 30 3 * * *}       # daily purge, UTC
+  purge-batch-size: ${POSTS_PURGE_BATCH_SIZE:100}
+  create-per-hour: ${POSTS_CREATE_PER_HOUR:20}       # per signed-in user
+
+uploads:
+  allowed-types: ${UPLOADS_ALLOWED_TYPES:image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime}
+  max-image-size: ${UPLOADS_MAX_IMAGE_SIZE:20MB}
+  max-video-size: ${UPLOADS_MAX_VIDEO_SIZE:200MB}
+  url-ttl: ${UPLOADS_URL_TTL:15m}                    # how long a presigned upload URL works
+  sign-per-hour: ${UPLOADS_SIGN_PER_HOUR:30}         # per signed-in user
+
+supabase:
+  url: ${SUPABASE_URL:}                # server-to-server calls to Supabase Auth
+  anon-key: ${SUPABASE_ANON_KEY:}      # public API key, sent as the apikey header
+
 storage:
   endpoint: ${STORAGE_ENDPOINT:}               # server-side calls (HEAD, DELETE)
   public-endpoint: ${STORAGE_PUBLIC_ENDPOINT:} # host baked into presigned URLs

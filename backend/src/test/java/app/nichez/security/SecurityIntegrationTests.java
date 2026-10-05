@@ -7,6 +7,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import app.nichez.auth.repository.OtpSendRepository;
+import app.nichez.auth.repository.PhoneChallengeRepository;
+import app.nichez.common.AuditEventRepository;
+import app.nichez.niche.repository.NicheRepository;
+import app.nichez.post.repository.MediaPurgeRepository;
+import app.nichez.post.repository.PostRepository;
+import app.nichez.post.service.DeletedPostMediaPurgeJob;
+import app.nichez.profile.repository.ProfileRepository;
 import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
@@ -14,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -36,6 +45,25 @@ import org.springframework.test.web.servlet.ResultActions;
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class SecurityIntegrationTests {
+
+    // JPA is excluded above, so the repositories that feature beans need are stubbed out.
+    @MockitoBean
+    PhoneChallengeRepository phoneChallengeRepository;
+    @MockitoBean
+    OtpSendRepository otpSendRepository;
+    @MockitoBean
+    AuditEventRepository auditEventRepository;
+    @MockitoBean
+    ProfileRepository profileRepository;
+    @MockitoBean
+    NicheRepository nicheRepository;
+    @MockitoBean
+    PostRepository postRepository;
+    @MockitoBean
+    MediaPurgeRepository mediaPurgeRepository;
+    // Needs a transaction manager, which goes with the excluded DataSource.
+    @MockitoBean
+    DeletedPostMediaPurgeJob deletedPostMediaPurgeJob;
 
     @Autowired
     MockMvc mvc;

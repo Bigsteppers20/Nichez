@@ -57,4 +57,19 @@ added to the feature table below. A new code must be `UPPER_SNAKE`; the
 
 ## Feature codes
 
-None yet. Add rows as `| status | CODE | feature | when |`.
+| Status | Code | Feature | When |
+|---|---|---|---|
+| 400 | `INVALID_PHONE` | auth | Dial code or number does not parse to a valid phone number. |
+| 400 | `COUNTRY_NOT_SUPPORTED` | auth | Valid number, but its country is not in `auth.sms.allowed-countries`. |
+| 400 | `WRONG_CODE` | auth | OTP is wrong. Extra field `attemptsLeft` (0 on the guess that locks the phone). |
+| 400 | `HANDLE_INVALID` | profile | Handle is not 3 to 30 characters of letters, digits, `_` and `.`. |
+| 400 | `HANDLE_RESERVED` | profile | Handle is reserved, or looks like a reserved or verified handle. |
+| 409 | `HANDLE_TAKEN` | profile | Someone else holds that handle (in any letter case). |
+| 404 | `NICHE_NOT_FOUND` | niche | No niche has that id. |
+| 404 | `POST_NOT_FOUND` | post | No such post, it is already deleted or removed, or the caller may not delete it. Deliberately the same answer for all three. |
+| 404 | `CHALLENGE_NOT_FOUND` | auth | Unknown, or already used, sign-in challenge. |
+| 410 | `CODE_EXPIRED` | auth | More than 5 minutes since the code was sent. Call `/auth/phone/resend`. |
+| 423 | `LOCKED` | auth | Too many wrong codes. `Retry-After` gives seconds. |
+| 502 | `AUTH_PROVIDER_UNAVAILABLE` | auth | Supabase Auth could not be reached. Safe to retry; no attempt is used. |
+
+`/auth/phone/start` and `/resend` also answer 429 `RATE_LIMITED` for hourly limits, the resend cooldown and an active lockout.
