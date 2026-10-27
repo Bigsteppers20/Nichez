@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Create the four local test users through the local Supabase Auth admin API.
 #
-#   creator@test.local  +1 555-555-0101   (OTP 101010)
-#   viewer@test.local   +1 555-555-0102   (OTP 202020)
-#   viewer2@test.local  +1 555-555-0103   (OTP 303030)
-#   admin@test.local    +1 555-555-0104   (OTP 404040)  app_metadata.role = admin
+#   creator@test.local  +1 202$1555-0101   (OTP 101010)
+#   viewer@test.local   +1 202$1555-0102   (OTP 202020)
+#   viewer2@test.local  +1 202$1555-0103   (OTP 303030)
+#   admin@test.local    +1 202$1555-0104   (OTP 404040)  app_metadata.role = admin
 #
 # Phones are confirmed; the OTP codes come from [auth.sms.test_otp] in supabase/config.toml.
 # Email+password sign-in uses $SEED_PASSWORD, default "LocalDev-Passw0rd!".
@@ -77,10 +77,10 @@ seed_user() {
   rm -f /tmp/seed-users.$$
 }
 
-seed_user creator@test.local 15555550101 false
-seed_user viewer@test.local  15555550102 false
-seed_user viewer2@test.local 15555550103 false
-seed_user admin@test.local   15555550104 true
+seed_user creator@test.local 12025550101 false
+seed_user viewer@test.local  12025550102 false
+seed_user viewer2@test.local 12025550103 false
+seed_user admin@test.local   12025550104 true
 
 echo
 echo "Done. Sign in with email + password, or phone + the OTP from supabase/config.toml."

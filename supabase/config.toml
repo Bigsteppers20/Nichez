@@ -269,10 +269,10 @@ max_frequency = "5s"
 # LOCAL ONLY: these numbers (fictional 555-01xx range) always accept their fixed
 # code and no SMS is sent. Used by scripts/seed-users. See docs/LOCAL_DEV.md.
 [auth.sms.test_otp]
-15555550101 = "101010"
-15555550102 = "202020"
-15555550103 = "303030"
-15555550104 = "404040"
+12025550101 = "101010"
+12025550102 = "202020"
+12025550103 = "303030"
+12025550104 = "404040"
 
 # Configure logged in session timeouts.
 # [auth.sessions]

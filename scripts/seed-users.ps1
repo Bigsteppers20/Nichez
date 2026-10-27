@@ -1,9 +1,9 @@
 # Create the four local test users through the local Supabase Auth admin API.
 #
-#   creator@test.local  +1 555-555-0101   (OTP 101010)
-#   viewer@test.local   +1 555-555-0102   (OTP 202020)
-#   viewer2@test.local  +1 555-555-0103   (OTP 303030)
-#   admin@test.local    +1 555-555-0104   (OTP 404040)  app_metadata.role = admin
+#   creator@test.local  +1 202$1555-0101   (OTP 101010)
+#   viewer@test.local   +1 202$1555-0102   (OTP 202020)
+#   viewer2@test.local  +1 202$1555-0103   (OTP 303030)
+#   admin@test.local    +1 202$1555-0104   (OTP 404040)  app_metadata.role = admin
 #
 # Phones are confirmed; the OTP codes come from [auth.sms.test_otp] in supabase/config.toml.
 # Email+password sign-in uses $env:SEED_PASSWORD, default "LocalDev-Passw0rd!".
@@ -38,10 +38,10 @@ try {
     $adminUsers = "$apiUrl/auth/v1/admin/users"
 
     $users = @(
-        @{ email = 'creator@test.local'; phone = '15555550101'; admin = $false },
-        @{ email = 'viewer@test.local';  phone = '15555550102'; admin = $false },
-        @{ email = 'viewer2@test.local'; phone = '15555550103'; admin = $false },
-        @{ email = 'admin@test.local';   phone = '15555550104'; admin = $true }
+        @{ email = 'creator@test.local'; phone = '12025550101'; admin = $false },
+        @{ email = 'viewer@test.local';  phone = '12025550102'; admin = $false },
+        @{ email = 'viewer2@test.local'; phone = '12025550103'; admin = $false },
+        @{ email = 'admin@test.local';   phone = '12025550104'; admin = $true }
     )
 
     $existing = $null

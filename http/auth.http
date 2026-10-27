@@ -1,13 +1,13 @@
 ### Phone sign-in. All three routes are public (no token) and rate limited.
 ### Local test numbers never send an SMS: supabase/config.toml [auth.sms.test_otp]
-### +1 555 555 0101 always accepts code 101010. (Only works if US is in auth.sms.allowed-countries.)
+### +1 202$1555 0101 always accepts code 101010. (Only works if US is in auth.sms.allowed-countries.)
 
 ### 1. Start. Same response whether or not the number has an account.
 # @name start
 POST {{baseUrl}}/api/v1/auth/phone/start
 Content-Type: application/json
 
-{ "dialCode": "+1", "nationalNumber": "555 555 0101" }
+{ "dialCode": "+1", "nationalNumber": "202 555 0101" }
 
 ###
 @challengeId = {{start.response.body.$.challengeId}}

@@ -47,10 +47,10 @@ confirmed. Each phone signs in with a fixed OTP from `[auth.sms.test_otp]` in
 
 | Email | Phone | OTP | Role |
 |---|---|---|---|
-| creator@test.local | +1 555 555 0101 | 101010 | |
-| viewer@test.local | +1 555 555 0102 | 202020 | |
-| viewer2@test.local | +1 555 555 0103 | 303030 | |
-| admin@test.local | +1 555 555 0104 | 404040 | `app_metadata.role = admin` |
+| creator@test.local | +1 202$1555 0101 | 101010 | |
+| viewer@test.local | +1 202$1555 0102 | 202020 | |
+| viewer2@test.local | +1 202$1555 0103 | 303030 | |
+| admin@test.local | +1 202$1555 0104 | 404040 | `app_metadata.role = admin` |
 
 Email + password sign-in also works; the password is `LocalDev-Passw0rd!`
 unless you set `SEED_PASSWORD` before running the script. Re-running the script
@@ -73,15 +73,29 @@ Swagger exists only on the `local` profile (`springdoc.swagger-ui.enabled` in
 `application-local.yml`). In any other profile, including `prod`, these paths answer 401 like
 everything else that is not public. The API's own routes need a token even with Swagger on.
 
-To call an endpoint that needs a token:
+To call an endpoint that needs a token, sign in as a test user and paste the token into Authorize.
 
-1. Expand `POST /api/v1/auth/phone/start`, **Try it out**, send
-   `{ "dialCode": "+1", "nationalNumber": "555 555 0101" }` and copy the `challengeId`.
-2. Expand `POST /api/v1/auth/phone/verify` and send `{ "challengeId": "<id>", "code": "101010" }`
-   (the OTP for the number you used, see Test users).
-3. Copy `session.accessToken` from the response, click **Authorize** at the top and paste it.
-   Do not type `Bearer`; Swagger adds it. The token is kept across page reloads. It does expire,
-   so repeat step 2 when calls start returning `TOKEN_EXPIRED`.
+1. Get a token by email and password straight from the local Auth. This copies it to the clipboard:
+
+   ```powershell
+   $k = (npx supabase status -o json | ConvertFrom-Json).ANON_KEY
+   (Invoke-RestMethod -Method Post "http://127.0.0.1:54321/auth/v1/token?grant_type=password" `
+       -Headers @{ apikey = $k } -ContentType "application/json" `
+       -Body '{"email":"creator@test.local","password":"LocalDev-Passw0rd!"}').access_token | Set-Clipboard
+   ```
+
+   Use another test user's email for a second person. Run it from the repo root.
+2. Click **Authorize** at the top of the Swagger page and paste. Do not type `Bearer`; Swagger adds it.
+   The token is kept across page reloads. It does expire, so repeat step 1 when calls start
+   returning `TOKEN_EXPIRED`.
+
+Phone sign-in works too: call `POST /api/v1/auth/phone/start` with
+`{ "dialCode": "+1", "nationalNumber": "202 555 0101" }`, then `/verify` with the `challengeId` and
+that number's code from the Test users table, and paste `session.accessToken`.
+
+The test numbers are in the fictional 555-01xx range under the real 202 area code on purpose: the
+backend validates numbers with libphonenumber, which rejects a made-up area code such as `+1 555 ...`
+(`INVALID_PHONE`) before the request ever reaches Auth.
 
 ## Reaching the stack from a phone
 
@@ -173,6 +187,31 @@ cannot verify its tokens. Generate a key with
 
 The backend's S3 client does not yet have a setting for a custom endpoint
 (`http://localhost:9000`); that lands with the `media` feature.
+
+## Storage without MinIO
+
+The local Supabase stack already has an S3-compatible endpoint, so uploads work without running MinIO.
+This is the option when something else owns port 9000. Create a private bucket once:
+
+```powershell
+$s = npx supabase status -o json | ConvertFrom-Json
+Invoke-RestMethod -Method Post "http://127.0.0.1:54321/storage/v1/bucket" `
+    -Headers @{ apikey = $s.SERVICE_ROLE_KEY; Authorization = "Bearer $($s.SERVICE_ROLE_KEY)" } `
+    -ContentType "application/json" -Body '{"id":"media","name":"media","public":false}'
+```
+
+Then start the backend with these set (environment variables win over `backend/.env`):
+
+| Variable | Value from `npx supabase status -o json` |
+|---|---|
+| `STORAGE_ENDPOINT` and `STORAGE_PUBLIC_ENDPOINT` | `STORAGE_S3_URL` (`http://127.0.0.1:54321/storage/v1/s3`) |
+| `STORAGE_REGION` | `S3_PROTOCOL_REGION` (`local`) |
+| `STORAGE_ACCESS_KEY` | `S3_PROTOCOL_ACCESS_KEY_ID` |
+| `STORAGE_SECRET_KEY` | `S3_PROTOCOL_ACCESS_KEY_SECRET` |
+| `STORAGE_BUCKET` | `media` |
+
+Sign, `PUT` and `POST /posts` all work against it. Uploaded posts stay `processing` until the media
+worker publishes them; nothing runs that locally yet.
 
 ## Reset everything
 
