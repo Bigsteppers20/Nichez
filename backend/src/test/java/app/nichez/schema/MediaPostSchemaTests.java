@@ -26,7 +26,7 @@ class MediaPostSchemaTests {
 
     @BeforeEach
     void fixtures() {
-        jdbc.execute("truncate table post_tags, posts, media");
+        jdbc.execute("truncate table media_processing_jobs, post_tags, posts, media cascade");
         author = profile();
         otherUser = profile();
         niche = jdbc.queryForObject("select id from niches where slug = 'islam'", UUID.class);

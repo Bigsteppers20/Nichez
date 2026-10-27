@@ -5,3 +5,13 @@
 spring:
   config:
     import: optional:file:.env[.properties]
+
+# Swagger UI at http://localhost:8080/swagger-ui.html. Local only: it is open without a token.
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    persist-authorization: true   # keeps the pasted token across page reloads
+    tags-sorter: alpha
+    operations-sorter: method

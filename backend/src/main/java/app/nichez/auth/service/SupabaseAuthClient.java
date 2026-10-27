@@ -90,6 +90,22 @@ public class SupabaseAuthClient {
         return toSession(body[0]);
     }
 
+    /**
+     * Ends the session at Supabase for the access token the caller used. Best effort: the app also
+     * discards its tokens, so a failure here is logged (error type only) and not reported to the person.
+     */
+    public void logout(String accessToken) {
+        try {
+            client.post()
+                    .uri("/auth/v1/logout")
+                    .header("Authorization", "Bearer " + accessToken)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (RestClientException e) {
+            log.warn("Supabase logout call did not complete: {}", e.getClass().getSimpleName());
+        }
+    }
+
     private int call(String operation, String path, Map<String, String> payload, JsonNode[] bodyOut) {
         try {
             return client.post()

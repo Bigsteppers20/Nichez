@@ -48,6 +48,26 @@ class ConfigValidatorTests {
         p.put("media.ttl", "15m");
         p.put("rate-limit.requests-per-minute", "120");
         p.put("rate-limit.burst", "30");
+        p.put("app.public-base-url", "https://nichez.app");
+        p.put("app.min-app-version", "1.0.0");
+        p.put("app.terms-url", "https://nichez.app/terms");
+        p.put("app.privacy-url", "https://nichez.app/privacy");
+        p.put("social.view-min-watched-ms", "3000");
+        p.put("social.view-batch-max", "50");
+        p.put("social.view-batches-per-minute", "30");
+        p.put("social.story-ttl", "24h");
+        p.put("social.reactions-per-minute", "120");
+        p.put("social.comments-per-hour", "60");
+        p.put("social.follows-per-hour", "200");
+        p.put("social.reports-per-hour", "20");
+        p.put("social.searches-per-minute", "60");
+        p.put("social.public-lookups-per-minute", "60");
+        p.put("social.stories-per-day", "30");
+        p.put("social.communities-per-day", "5");
+        p.put("social.niches-per-day", "5");
+        p.put("account.deletion-grace", "14d");
+        p.put("account.deletion-cron", "0 0 4 * * *");
+        p.put("account.deletion-batch-size", "50");
         return p;
     }
 

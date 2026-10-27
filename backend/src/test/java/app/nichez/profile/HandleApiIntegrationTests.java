@@ -86,7 +86,7 @@ class HandleApiIntegrationTests {
     @BeforeEach
     void clean() {
         clock.set(START);
-        jdbc.execute("truncate table post_tags, posts, media, profiles, user_niches, follows, niche_moderators");
+        jdbc.execute("truncate table media_processing_jobs, post_tags, posts, media, profiles, user_niches, follows, niche_moderators cascade");
     }
 
     // --- helpers ---------------------------------------------------------------------

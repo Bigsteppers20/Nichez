@@ -20,6 +20,7 @@
         <java.version>21</java.version>
         <aws-sdk.version>2.55.11</aws-sdk.version>
         <libphonenumber.version>9.0.40</libphonenumber.version>
+        <springdoc.version>2.8.9</springdoc.version>
         <wiremock.version>3.13.2</wiremock.version>
         <embedded-postgres.version>2.1.0</embedded-postgres.version>
     </properties>
@@ -73,6 +74,13 @@
             <groupId>com.googlecode.libphonenumber</groupId>
             <artifactId>libphonenumber</artifactId>
             <version>${libphonenumber.version}</version>
+        </dependency>
+
+        <!-- Swagger UI for testing by hand. Switched off unless springdoc.swagger-ui.enabled=true (local profile only). -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc.version}</version>
         </dependency>
 
         <dependency>

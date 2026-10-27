@@ -119,8 +119,7 @@ class PostingApiIntegrationTests {
         clock.set(START);
         reset(s3, blocks);
         jdbc.execute("truncate table media_processing_jobs, post_tags, posts, media, profiles, user_niches, "
-                + "follows, niche_moderators");
-        jdbc.execute("delete from audit_events where event_type = 'POST_CREATED'");
+                + "follows, niche_moderators cascade");
         football = jdbc.queryForObject("select id from niches where slug = 'football'", UUID.class);
         cooking = jdbc.queryForObject("select id from niches where id <> ? order by slug limit 1", UUID.class,
                 football);
@@ -205,20 +204,22 @@ class PostingApiIntegrationTests {
     }
 
     private void setStatus(UUID postId, String status) {
-        jdbc.update("""
-                update posts set status = ?,
-                    published_at = case when ? = 'published' then ? else published_at end,
-                    deleted_at = case when ? in ('deleted', 'removed') then ? else deleted_at end
-                where id = ?""",
-                status, status, Timestamp.from(START), status, Timestamp.from(START), postId);
+        Timestamp at = Timestamp.from(START);
+        switch (status) {
+            case "published" -> jdbc.update("update posts set status = 'published', published_at = ? where id = ?",
+                    at, postId);
+            case "deleted", "removed" -> jdbc.update("update posts set status = ?, deleted_at = ? where id = ?",
+                    status, at, postId);
+            default -> jdbc.update("update posts set status = ? where id = ?", status, postId);
+        }
     }
 
     private ResultActions getPost(TestUser viewer, UUID postId) throws Exception {
         return mvc.perform(get("/api/v1/posts/{id}", postId).header("Authorization", "Bearer " + viewer.token()));
     }
 
-    private void expectError(ResultActions result, int status, String code) throws Exception {
-        result.andExpect(status().is(status))
+    private ResultActions expectError(ResultActions result, int status, String code) throws Exception {
+        return result.andExpect(status().is(status))
                 .andExpect(jsonPath("$.code").value(code))
                 .andExpect(jsonPath("$.requestId").isNotEmpty());
     }
@@ -635,7 +636,8 @@ class PostingApiIntegrationTests {
         TestUser viewer = newUser();
         UUID postId = createdPost(author, football, Map.of());
         setStatus(postId, "published");
-        when(blocks.isBlockedEitherWay(viewer.id(), author.id())).thenReturn(true);
+        // Blocks are a real table now: the post is hidden by the same query every list uses.
+        jdbc.update("insert into blocks (blocker_id, blocked_id) values (?, ?)", viewer.id(), author.id());
 
         expectError(getPost(viewer, postId), 404, "POST_NOT_FOUND");
         getPost(newUser(), postId).andExpect(status().isOk());

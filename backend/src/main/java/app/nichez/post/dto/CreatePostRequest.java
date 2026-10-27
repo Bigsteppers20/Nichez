@@ -9,7 +9,8 @@ import java.util.UUID;
 
 /**
  * {@code audience} defaults to {@code everyone} and {@code allowComments} to true when left out.
- * {@code taggedUserIds} may hold at most {@link #MAX_TAGS} people.
+ * {@code taggedUserIds} may hold at most {@link #MAX_TAGS} people. {@code communityId} posts into a
+ * community the caller belongs to; {@code nicheId} must then be that community's home niche.
  */
 public record CreatePostRequest(
         @NotNull UUID mediaId,
@@ -17,7 +18,8 @@ public record CreatePostRequest(
         @NotNull UUID nicheId,
         @Pattern(regexp = "everyone|niche_members", message = "must be everyone or niche_members") String audience,
         Boolean allowComments,
-        @Size(max = MAX_TAGS) List<@NotNull UUID> taggedUserIds) {
+        @Size(max = MAX_TAGS) List<@NotNull UUID> taggedUserIds,
+        UUID communityId) {
 
     public static final int MAX_TAGS = 10;
 }

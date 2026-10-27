@@ -78,7 +78,7 @@ class DeletedPostMediaPurgeJobTests {
     void clean() {
         clock.set(NOW);
         reset(s3);
-        jdbc.execute("truncate table post_tags, posts, media, profiles, user_niches, follows, niche_moderators");
+        jdbc.execute("truncate table media_processing_jobs, post_tags, posts, media, profiles, user_niches, follows, niche_moderators cascade");
         author = UUID.randomUUID();
         jdbc.update("insert into auth.users (id) values (?)", author);
         jdbc.update("insert into profiles (id) values (?)", author);

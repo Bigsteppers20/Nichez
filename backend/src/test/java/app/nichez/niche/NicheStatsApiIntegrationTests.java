@@ -75,7 +75,7 @@ class NicheStatsApiIntegrationTests {
     @BeforeEach
     void clean() {
         clock.set(START);
-        jdbc.execute("truncate table post_tags, posts, media, profiles, user_niches, follows, niche_moderators");
+        jdbc.execute("truncate table media_processing_jobs, post_tags, posts, media, profiles, user_niches, follows, niche_moderators cascade");
         football = jdbc.queryForObject("select id from niches where slug = 'football'", UUID.class);
         other = jdbc.queryForObject("select id from niches where id <> ? order by slug limit 1", UUID.class, football);
         stats.evict(football);

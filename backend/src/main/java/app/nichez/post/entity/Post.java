@@ -61,6 +61,10 @@ public class Post extends AssignedIdEntity<UUID> {
     @Column(name = "comment_count", nullable = false, insertable = false, updatable = false)
     private int commentCount;
 
+    /** The community this post was made in, or null. Its niche is then the community's home niche. */
+    @Column(name = "community_id", updatable = false)
+    private UUID communityId;
+
     /** The post this one reshares, or null. */
     @Column(name = "reshare_of", updatable = false)
     private UUID reshareOf;
@@ -155,6 +159,15 @@ public class Post extends AssignedIdEntity<UUID> {
 
     public int getCommentCount() {
         return commentCount;
+    }
+
+    public UUID getCommunityId() {
+        return communityId;
+    }
+
+    /** Set before the post is first saved; a post never moves to another community. */
+    public void setCommunityId(UUID communityId) {
+        this.communityId = communityId;
     }
 
     public UUID getReshareOf() {

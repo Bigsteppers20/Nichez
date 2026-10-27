@@ -6,15 +6,14 @@ import app.nichez.common.ConflictException;
 import app.nichez.common.NotFoundException;
 import app.nichez.common.SlidingWindowRateLimiter;
 import app.nichez.config.PostProperties;
-import app.nichez.config.UploadProperties;
 import app.nichez.media.entity.Media;
 import app.nichez.media.entity.MediaStatus;
-import app.nichez.media.entity.UploadType;
 import app.nichez.media.repository.MediaProcessingJobRepository;
 import app.nichez.media.repository.MediaRepository;
-import app.nichez.media.service.MediaObjectStore;
 import app.nichez.media.service.MediaObjectStore.StoredObject;
-import app.nichez.media.service.UploadService;
+import app.nichez.media.service.MediaVerifier;
+import app.nichez.niche.repository.CommunityRepository;
+import app.nichez.niche.repository.NicheCatalogRepository;
 import app.nichez.niche.repository.NicheRepository;
 import app.nichez.niche.service.NicheStatsService;
 import app.nichez.post.dto.CreatePostRequest;
@@ -33,7 +32,6 @@ import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -55,11 +53,15 @@ public class PostCreationService {
 
     public static final String MEDIA_NOT_FOUND = "MEDIA_NOT_FOUND";
     public static final String MEDIA_ALREADY_USED = "MEDIA_ALREADY_USED";
-    public static final String MEDIA_NOT_UPLOADED = "MEDIA_NOT_UPLOADED";
-    public static final String MEDIA_TYPE_MISMATCH = "MEDIA_TYPE_MISMATCH";
+    public static final String MEDIA_NOT_UPLOADED = MediaVerifier.MEDIA_NOT_UPLOADED;
+    public static final String MEDIA_TYPE_MISMATCH = MediaVerifier.MEDIA_TYPE_MISMATCH;
     public static final String NOT_A_NICHE_MEMBER = "NOT_A_NICHE_MEMBER";
     public static final String TAGGED_USER_NOT_FOUND = "TAGGED_USER_NOT_FOUND";
     public static final String POST_CREATED_EVENT = "POST_CREATED";
+    public static final String NOT_A_COMMUNITY_MEMBER = "NOT_A_COMMUNITY_MEMBER";
+    public static final String NICHE_COMMUNITY_MISMATCH = "NICHE_COMMUNITY_MISMATCH";
+    public static final String BANNED_FROM_NICHE = "BANNED_FROM_NICHE";
+    public static final String BANNED_FROM_COMMUNITY = "BANNED_FROM_COMMUNITY";
 
     private static final Logger log = LoggerFactory.getLogger(PostCreationService.class);
 
@@ -67,35 +69,38 @@ public class PostCreationService {
     private final PostTagRepository tags;
     private final MediaRepository media;
     private final MediaProcessingJobRepository jobs;
-    private final MediaObjectStore store;
+    private final MediaVerifier verifier;
     private final NicheRepository niches;
+    private final NicheCatalogRepository catalog;
+    private final CommunityRepository communities;
     private final ProfileRepository profiles;
     private final BlockPolicy blocks;
-    private final PostViews views;
+    private final PostCards cards;
     private final SlidingWindowRateLimiter limiter;
     private final PostProperties postProperties;
-    private final UploadProperties uploadProperties;
     private final AuditService audit;
     private final TransactionTemplate transaction;
     private final Clock clock;
 
     PostCreationService(PostRepository posts, PostTagRepository tags, MediaRepository media,
-            MediaProcessingJobRepository jobs, MediaObjectStore store, NicheRepository niches,
-            ProfileRepository profiles, BlockPolicy blocks, PostViews views, SlidingWindowRateLimiter limiter,
-            PostProperties postProperties, UploadProperties uploadProperties, AuditService audit,
+            MediaProcessingJobRepository jobs, MediaVerifier verifier, NicheRepository niches,
+            NicheCatalogRepository catalog, CommunityRepository communities,
+            ProfileRepository profiles, BlockPolicy blocks, PostCards cards, SlidingWindowRateLimiter limiter,
+            PostProperties postProperties, AuditService audit,
             TransactionTemplate transaction, Clock clock) {
         this.posts = posts;
         this.tags = tags;
         this.media = media;
         this.jobs = jobs;
-        this.store = store;
+        this.verifier = verifier;
         this.niches = niches;
+        this.catalog = catalog;
+        this.communities = communities;
         this.profiles = profiles;
         this.blocks = blocks;
-        this.views = views;
+        this.cards = cards;
         this.limiter = limiter;
         this.postProperties = postProperties;
-        this.uploadProperties = uploadProperties;
         this.audit = audit;
         this.transaction = transaction;
         this.clock = clock;
@@ -112,12 +117,17 @@ public class PostCreationService {
         if (niches.labelOf(request.nicheId()).isEmpty()) {
             throw new NotFoundException(NicheStatsService.NICHE_NOT_FOUND, "Niche not found.");
         }
-        if (!niches.isMember(request.nicheId(), me)) {
+        if (catalog.isBanned(me, request.nicheId())) {
+            throw new ApiException(HttpStatus.FORBIDDEN, BANNED_FROM_NICHE, "You cannot post to this niche.");
+        }
+        if (request.communityId() != null) {
+            checkCommunity(me, request);
+        } else if (!niches.isMember(request.nicheId(), me)) {
             throw new ApiException(HttpStatus.FORBIDDEN, NOT_A_NICHE_MEMBER,
                     "Join this niche before posting to it.");
         }
         Set<UUID> tagged = checkTags(me, request.taggedUserIds());
-        StoredObject stored = checkStoredFile(upload);
+        StoredObject stored = verifier.verifyStored(upload);
 
         return transaction.execute(status -> persist(me, request, tagged, stored, ipAddress));
     }
@@ -134,6 +144,7 @@ public class PostCreationService {
         Post post = new Post(UUID.randomUUID(), me, request.nicheId(), locked.getId(), captionOf(request),
                 request.audience() == null ? Audience.EVERYONE : Audience.valueOf(request.audience().toUpperCase(java.util.Locale.ROOT)),
                 request.allowComments() == null || request.allowComments(), now);
+        post.setCommunityId(request.communityId());
         posts.saveAndFlush(post);
         tags.saveAll(tagged.stream().map(user -> new PostTag(post.getId(), user)).toList());
 
@@ -148,9 +159,26 @@ public class PostCreationService {
                 "nicheId", post.getNicheId().toString(),
                 "mediaId", locked.getId().toString(),
                 "kind", locked.getKind().dbValue(),
-                "taggedCount", tagged.size()));
+                "taggedCount", tagged.size(),
+                "communityId", String.valueOf(request.communityId())));
         log.info("Post created, post={}, media={}", post.getId(), locked.getId());
-        return views.of(post, locked);
+        return cards.loadOne(me, post.getId()).orElseThrow();
+    }
+
+    /** Posting into a community: the caller is a member, not banned, and the niche is the community's home niche. */
+    private void checkCommunity(UUID me, CreatePostRequest request) {
+        var community = communities.find(me, request.communityId())
+                .orElseThrow(() -> new NotFoundException("COMMUNITY_NOT_FOUND", "Community not found."));
+        if (communities.isBanned(request.communityId(), me)) {
+            throw new ApiException(HttpStatus.FORBIDDEN, BANNED_FROM_COMMUNITY, "You cannot post to this community.");
+        }
+        if (community.myRole() == null) {
+            throw new ApiException(HttpStatus.FORBIDDEN, NOT_A_COMMUNITY_MEMBER, "Join this community before posting to it.");
+        }
+        if (!community.homeNicheId().equals(request.nicheId())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, NICHE_COMMUNITY_MISMATCH,
+                    "A community's posts go to its home niche.");
+        }
     }
 
     /** A media can back one post, and only before it has been handed to processing. */
@@ -173,23 +201,6 @@ public class PostCreationService {
                     "One or more tagged people could not be found.");
         }
         return tagged;
-    }
-
-    /** The stored file must exist, fit its kind's size cap, and really be the type it was declared as. */
-    private StoredObject checkStoredFile(Media upload) {
-        StoredObject stored = store.inspect(upload.getOriginalKey(), UploadType.SNIFF_BYTES)
-                .orElseThrow(() -> new ConflictException(MEDIA_NOT_UPLOADED,
-                        "The file has not been uploaded yet."));
-        if (stored.bytes() > uploadProperties.maxBytes(upload.getKind())) {
-            throw UploadService.tooLarge();
-        }
-        Optional<UploadType> declared = UploadType.fromMimeType(upload.getDeclaredType());
-        Optional<UploadType> actual = UploadType.sniff(stored.head());
-        if (actual.isEmpty() || !actual.equals(declared)) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, MEDIA_TYPE_MISMATCH,
-                    "The uploaded file is not the type it was declared as.");
-        }
-        return stored;
     }
 
     private static String captionOf(CreatePostRequest request) {

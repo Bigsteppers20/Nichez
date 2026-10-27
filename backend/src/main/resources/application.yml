@@ -57,6 +57,35 @@ uploads:
   url-ttl: ${UPLOADS_URL_TTL:15m}                    # how long a presigned upload URL works
   sign-per-hour: ${UPLOADS_SIGN_PER_HOUR:30}         # per signed-in user
 
+app:
+  public-base-url: ${APP_PUBLIC_BASE_URL:https://nichez.app}   # share links point here
+  min-app-version: ${APP_MIN_VERSION:1.0.0}                    # older apps are told to update
+  terms-url: ${APP_TERMS_URL:https://nichez.app/terms}
+  privacy-url: ${APP_PRIVACY_URL:https://nichez.app/privacy}
+  feature-live: ${APP_FEATURE_LIVE:false}                      # which parts of the plan the server serves
+  feature-reels: ${APP_FEATURE_REELS:false}
+  feature-direct-messages: ${APP_FEATURE_DIRECT_MESSAGES:false}
+
+social:
+  view-min-watched-ms: ${SOCIAL_VIEW_MIN_WATCHED_MS:3000}      # placeholder until the earnings rules are agreed
+  view-batch-max: ${SOCIAL_VIEW_BATCH_MAX:50}                  # playback reports per POST /views
+  view-batches-per-minute: ${SOCIAL_VIEW_BATCHES_PER_MINUTE:30} # POST /views calls per signed-in user
+  story-ttl: ${SOCIAL_STORY_TTL:24h}
+  reactions-per-minute: ${SOCIAL_REACTIONS_PER_MINUTE:120}     # per signed-in user
+  comments-per-hour: ${SOCIAL_COMMENTS_PER_HOUR:60}
+  follows-per-hour: ${SOCIAL_FOLLOWS_PER_HOUR:200}
+  reports-per-hour: ${SOCIAL_REPORTS_PER_HOUR:20}
+  searches-per-minute: ${SOCIAL_SEARCHES_PER_MINUTE:60}
+  public-lookups-per-minute: ${SOCIAL_PUBLIC_LOOKUPS_PER_MINUTE:60}  # share-link lookups per IP address
+  stories-per-day: ${SOCIAL_STORIES_PER_DAY:30}
+  communities-per-day: ${SOCIAL_COMMUNITIES_PER_DAY:5}
+  niches-per-day: ${SOCIAL_NICHES_PER_DAY:5}
+
+account:
+  deletion-grace: ${ACCOUNT_DELETION_GRACE:14d}                # hidden at once, erased after this
+  deletion-cron: ${ACCOUNT_DELETION_CRON:0 0 4 * * *}          # daily erase, UTC
+  deletion-batch-size: ${ACCOUNT_DELETION_BATCH_SIZE:50}
+
 supabase:
   url: ${SUPABASE_URL:}                # server-to-server calls to Supabase Auth
   anon-key: ${SUPABASE_ANON_KEY:}      # public API key, sent as the apikey header
@@ -82,6 +111,13 @@ rate-limit:
   enabled: ${RATE_LIMIT_ENABLED:true}
   requests-per-minute: ${RATE_LIMIT_REQUESTS_PER_MINUTE:120}
   burst: ${RATE_LIMIT_BURST:30}
+
+# Swagger UI and the OpenAPI document. Off everywhere; only application-local.yml turns them on.
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
 
 management:
   endpoints:

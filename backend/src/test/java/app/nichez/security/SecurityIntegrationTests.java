@@ -7,12 +7,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import app.nichez.account.service.AccountErasureJob;
 import app.nichez.auth.repository.OtpSendRepository;
 import app.nichez.auth.repository.PhoneChallengeRepository;
 import app.nichez.common.AuditEventRepository;
+import app.nichez.media.repository.MediaProcessingJobRepository;
+import app.nichez.media.repository.MediaRepository;
+import app.nichez.media.service.MediaAttachments;
 import app.nichez.niche.repository.NicheRepository;
 import app.nichez.post.repository.MediaPurgeRepository;
 import app.nichez.post.repository.PostRepository;
+import app.nichez.post.repository.PostTagRepository;
+import app.nichez.post.service.PostCreationService;
 import app.nichez.post.service.DeletedPostMediaPurgeJob;
 import app.nichez.profile.repository.ProfileRepository;
 import java.time.Duration;
@@ -22,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
@@ -61,9 +68,27 @@ class SecurityIntegrationTests {
     PostRepository postRepository;
     @MockitoBean
     MediaPurgeRepository mediaPurgeRepository;
-    // Needs a transaction manager, which goes with the excluded DataSource.
+    @MockitoBean
+    MediaRepository mediaRepository;
+    @MockitoBean
+    PostTagRepository postTagRepository;
+    @MockitoBean
+    MediaProcessingJobRepository mediaProcessingJobRepository;
+    // Every plain-SQL repository takes a JdbcClient, which goes with the excluded DataSource.
+    @MockitoBean
+    JdbcClient jdbcClient;
+    // Nobody is erased here; the filter asks this on every verified call.
+    @MockitoBean
+    ErasedAccounts erasedAccounts;
+    // These need a transaction manager, which goes with the excluded DataSource.
     @MockitoBean
     DeletedPostMediaPurgeJob deletedPostMediaPurgeJob;
+    @MockitoBean
+    MediaAttachments mediaAttachments;
+    @MockitoBean
+    AccountErasureJob accountErasureJob;
+    @MockitoBean
+    PostCreationService postCreationService;
 
     @Autowired
     MockMvc mvc;
@@ -225,10 +250,37 @@ class SecurityIntegrationTests {
     }
 
     @Test
+    void swaggerAndTheApiDocumentAreClosedUnlessTheLocalSwitchIsOn() throws Exception {
+        mvc.perform(get("/v3/api-docs")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/swagger-ui/index.html")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/swagger-ui.html")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void unknownPathWithTokenIs404InProblemFormat() throws Exception {
         getWith("/api/v1/does-not-exist", TestTokens.valid().build())
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("NOT_FOUND"))
+                .andExpect(jsonPath("$.requestId").isNotEmpty());
+    }
+
+    @Test
+    void configIsPublicSoTheAppCanCheckItsVersionBeforeSignIn() throws Exception {
+        mvc.perform(get("/api/v1/config"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.minAppVersion").value("1.0.0"))
+                .andExpect(jsonPath("$.features.live").value(false))
+                .andExpect(jsonPath("$.links.terms").isNotEmpty());
+    }
+
+    @Test
+    void anErasedAccountIsRefusedEvenWithAValidToken() throws Exception {
+        TestTokens token = TestTokens.valid();
+        org.mockito.Mockito.when(erasedAccounts.isErased(UUID.fromString(token.subject()))).thenReturn(true);
+
+        getWith("/api/v1/test/me", token.build())
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("ACCOUNT_DELETED"))
                 .andExpect(jsonPath("$.requestId").isNotEmpty());
     }
 

@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -38,10 +39,15 @@ class SecurityConfig {
             "/api/v1/auth/phone/start",
             "/api/v1/auth/phone/verify",
             "/api/v1/auth/phone/resend",
+            // Share links open for anyone, signed in or not; only public posts resolve, and lookups are rate limited per IP.
+            "/api/v1/links/*",
+            // The app asks for its minimum version and feature flags before the person has signed in.
+            "/api/v1/config",
     };
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http, ObjectMapper mapper) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http, ObjectMapper mapper, ErasedAccounts erased)
+            throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
@@ -54,6 +60,8 @@ class SecurityConfig {
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(new SupabaseJwtAuthenticationConverter()))
                         .authenticationEntryPoint(ProblemSecurityHandlers.entryPoint(mapper))
                         .accessDeniedHandler(ProblemSecurityHandlers.accessDeniedHandler(mapper)))
+                // An erased account's token stays valid until it expires; refuse it once it is verified.
+                .addFilterAfter(new ErasedAccountFilter(erased, mapper), BearerTokenAuthenticationFilter.class)
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint(ProblemSecurityHandlers.entryPoint(mapper))
                         .accessDeniedHandler(ProblemSecurityHandlers.accessDeniedHandler(mapper)));
