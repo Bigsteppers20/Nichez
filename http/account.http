@@ -1,0 +1,60 @@
+### Settings and the account lifecycle (Settings C5, Account J5). Needs a signed-in user.
+### Get a token by signing in (see auth.http) and paste its accessToken here:
+@token = <paste accessToken>
+
+### 1. Read settings -> { notifications, content }
+GET {{baseUrl}}/api/v1/me/settings
+Authorization: Bearer {{token}}
+
+### 2. Change some settings. Both parts, and every field in them, are optional; what is left out stays as it is.
+PATCH {{baseUrl}}/api/v1/me/settings
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "notifications": { "pushReactions": false, "quietHoursEnabled": true, "quietHoursStart": "23:30" },
+  "content": { "sensitiveFilter": "hide" }
+}
+
+### 400 VALIDATION_FAILED: quiet hours must be HH:mm
+PATCH {{baseUrl}}/api/v1/me/settings
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "notifications": { "quietHoursStart": "25:00" } }
+
+### 400 VALIDATION_FAILED: sensitiveFilter is veil, hide or show
+PATCH {{baseUrl}}/api/v1/me/settings
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "content": { "sensitiveFilter": "bogus" } }
+
+### 3. Ask for a copy of your data -> 202 { status: "requested" }
+POST {{baseUrl}}/api/v1/me/data-export
+Authorization: Bearer {{token}}
+
+### 409 EXPORT_ALREADY_REQUESTED: run the request above twice
+POST {{baseUrl}}/api/v1/me/data-export
+Authorization: Bearer {{token}}
+
+### 4. Deactivate -> 204. The account is hidden until you next sign in (GET /auth/session brings it back).
+POST {{baseUrl}}/api/v1/me/deactivate
+Authorization: Bearer {{token}}
+
+### 5. Bring a deactivated account back -> { reactivated: true, ... }
+GET {{baseUrl}}/api/v1/auth/session
+Authorization: Bearer {{token}}
+
+### 6. Delete the account -> 202 { deletionScheduledFor }. Hidden at once; erased after the grace period (14 days).
+### Asking again keeps the first date. Signing in does not cancel it.
+DELETE {{baseUrl}}/api/v1/me
+Authorization: Bearer {{token}}
+
+### 7. Cancel a pending deletion -> 204 (Proposed, not yet approved; see API.md section 12)
+POST {{baseUrl}}/api/v1/me/deletion/cancel
+Authorization: Bearer {{token}}
+
+### 409 NO_DELETION_PENDING: run the request above twice, or without a deletion waiting
+POST {{baseUrl}}/api/v1/me/deletion/cancel
+Authorization: Bearer {{token}}

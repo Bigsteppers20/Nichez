@@ -1,0 +1,105 @@
+### Posting (Flow 4): sign an upload, PUT the file, create the post, read it back. Needs a signed-in user.
+### Get a token by signing in (see auth.http) and paste its accessToken here:
+@token = <paste accessToken>
+@nicheId = <paste the id of a niche you have joined>
+@otherNicheId = <paste the id of a niche you have NOT joined>
+@mediaId = <paste mediaId from the sign response>
+@uploadUrl = <paste uploadUrl from the sign response>
+@postId = <paste id from the create response>
+
+### 1. Sign an upload -> { uploadUrl, mediaId }. The URL works for 15 minutes. 30 per hour per user.
+POST {{baseUrl}}/api/v1/uploads/sign
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "contentType": "image/png", "bytes": 48213 }
+
+### 400 UNSUPPORTED_MEDIA_TYPE: not an allowed type
+POST {{baseUrl}}/api/v1/uploads/sign
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "contentType": "application/pdf", "bytes": 48213 }
+
+### 413 MEDIA_TOO_LARGE: over the image cap (20 MB by default)
+POST {{baseUrl}}/api/v1/uploads/sign
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "contentType": "image/jpeg", "bytes": 52428800 }
+
+### 400 VALIDATION_FAILED: bytes missing
+POST {{baseUrl}}/api/v1/uploads/sign
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "contentType": "image/png" }
+
+### 2. PUT the file to storage. Point the line below at a real file whose size is the signed "bytes"; Content-Type must match too.
+PUT {{uploadUrl}}
+Content-Type: image/png
+
+< C:/path/to/your/image.png
+
+### 3. Create the post -> 201, status "processing". 20 per hour per user.
+POST {{baseUrl}}/api/v1/posts
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "mediaId": "{{mediaId}}",
+  "caption": "spent 3 hours making a pivot table do one thing. worth it.",
+  "nicheId": "{{nicheId}}",
+  "audience": "everyone",
+  "allowComments": true,
+  "taggedUserIds": []
+}
+
+### 409 MEDIA_ALREADY_USED: run the create again with the same mediaId
+POST {{baseUrl}}/api/v1/posts
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "mediaId": "{{mediaId}}", "nicheId": "{{nicheId}}" }
+
+### 403 NOT_A_NICHE_MEMBER: sign a fresh upload first, then post it to a niche you have not joined
+POST {{baseUrl}}/api/v1/posts
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "mediaId": "{{mediaId}}", "nicheId": "{{otherNicheId}}" }
+
+### 404 MEDIA_NOT_FOUND: unknown media, or someone else's
+POST {{baseUrl}}/api/v1/posts
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "mediaId": "00000000-0000-0000-0000-000000000000", "nicheId": "{{nicheId}}" }
+
+### 400 TAGGED_USER_NOT_FOUND: a tagged user who does not exist (or blocks you, or you block)
+POST {{baseUrl}}/api/v1/posts
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "mediaId": "{{mediaId}}", "nicheId": "{{nicheId}}", "taggedUserIds": ["00000000-0000-0000-0000-000000000000"] }
+
+### 400 MEDIA_TYPE_MISMATCH: sign as video/mp4, PUT a PNG, then create the post
+### 409 MEDIA_NOT_UPLOADED: sign, skip the PUT, then create the post
+
+### 400 VALIDATION_FAILED: audience must be everyone or niche_members
+POST {{baseUrl}}/api/v1/posts
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "mediaId": "{{mediaId}}", "nicheId": "{{nicheId}}", "audience": "friends" }
+
+### 4. Read the post. The author sees it while processing; others only once published.
+GET {{baseUrl}}/api/v1/posts/{{postId}}
+Authorization: Bearer {{token}}
+
+### 404 POST_NOT_FOUND
+GET {{baseUrl}}/api/v1/posts/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{token}}
+
+### 401 without a token
+GET {{baseUrl}}/api/v1/posts/{{postId}}

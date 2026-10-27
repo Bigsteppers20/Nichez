@@ -66,10 +66,22 @@ added to the feature table below. A new code must be `UPPER_SNAKE`; the
 | 400 | `HANDLE_RESERVED` | profile | Handle is reserved, or looks like a reserved or verified handle. |
 | 409 | `HANDLE_TAKEN` | profile | Someone else holds that handle (in any letter case). |
 | 404 | `NICHE_NOT_FOUND` | niche | No niche has that id. |
-| 404 | `POST_NOT_FOUND` | post | No such post, it is already deleted or removed, or the caller may not delete it. Deliberately the same answer for all three. |
+| 404 | `POST_NOT_FOUND` | post | No such post, it is already deleted or removed, or the caller may not see or delete it. Deliberately the same answer for all of these. |
+| 400 | `UNSUPPORTED_MEDIA_TYPE` | media | `/uploads/sign`: the declared `contentType` is not an allowed upload type. Same code as the framework's 415 for a bad request `Content-Type`; this one is a 400 because the request itself is fine. |
+| 413 | `MEDIA_TOO_LARGE` | media | `/uploads/sign` or `/posts`: the file is over the size cap for its kind (image or video). |
+| 502 | `STORAGE_UNAVAILABLE` | media | Media storage could not be reached. Safe to retry. |
+| 404 | `MEDIA_NOT_FOUND` | post | No such media, or it belongs to someone else. |
+| 409 | `MEDIA_ALREADY_USED` | post | The media already backs a post. Sign a new upload. |
+| 409 | `MEDIA_NOT_UPLOADED` | post | Nothing has been stored under the upload URL yet. PUT the file, then retry. |
+| 400 | `MEDIA_TYPE_MISMATCH` | post | The stored file's first bytes are not the declared type (for example a PNG signed as `video/mp4`). |
+| 403 | `NOT_A_NICHE_MEMBER` | post | The caller has not joined the niche they are posting to. |
+| 400 | `TAGGED_USER_NOT_FOUND` | post | A tagged user does not exist, or a block stands between them and the author. One answer for both. |
 | 404 | `CHALLENGE_NOT_FOUND` | auth | Unknown, or already used, sign-in challenge. |
 | 410 | `CODE_EXPIRED` | auth | More than 5 minutes since the code was sent. Call `/auth/phone/resend`. |
 | 423 | `LOCKED` | auth | Too many wrong codes. `Retry-After` gives seconds. |
 | 502 | `AUTH_PROVIDER_UNAVAILABLE` | auth | Supabase Auth could not be reached. Safe to retry; no attempt is used. |
+| 409 | `NO_DELETION_PENDING` | account | `/me/deletion/cancel`: there is no deletion waiting to be cancelled. |
+| 409 | `EXPORT_ALREADY_REQUESTED` | account | `/me/data-export`: a request for a copy of the person's data is already waiting. |
+| 403 | `ACCOUNT_DELETED` | account | The account has been erased. Returned for any call, with any token that still verifies. Sign out; do not retry. |
 
 `/auth/phone/start` and `/resend` also answer 429 `RATE_LIMITED` for hourly limits, the resend cooldown and an active lockout.

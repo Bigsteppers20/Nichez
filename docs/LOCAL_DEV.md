@@ -63,6 +63,26 @@ or `127.0.0.1`.
 > copy the test OTP numbers (a login backdoor) and the fake SMS provider to
 > the linked hosted project. Configure the hosted project in its dashboard.
 
+## Testing endpoints in Swagger
+
+Start the backend with `./mvnw.cmd spring-boot:run` from `backend/` (it uses the `local`
+profile) and open **http://localhost:8080/swagger-ui.html**. The raw OpenAPI document is at
+`/v3/api-docs`.
+
+Swagger exists only on the `local` profile (`springdoc.swagger-ui.enabled` in
+`application-local.yml`). In any other profile, including `prod`, these paths answer 401 like
+everything else that is not public. The API's own routes need a token even with Swagger on.
+
+To call an endpoint that needs a token:
+
+1. Expand `POST /api/v1/auth/phone/start`, **Try it out**, send
+   `{ "dialCode": "+1", "nationalNumber": "555 555 0101" }` and copy the `challengeId`.
+2. Expand `POST /api/v1/auth/phone/verify` and send `{ "challengeId": "<id>", "code": "101010" }`
+   (the OTP for the number you used, see Test users).
+3. Copy `session.accessToken` from the response, click **Authorize** at the top and paste it.
+   Do not type `Bearer`; Swagger adds it. The token is kept across page reloads. It does expire,
+   so repeat step 2 when calls start returning `TOKEN_EXPIRED`.
+
 ## Reaching the stack from a phone
 
 The phone needs ports **8080**, **54321** and **9000**. In the Flutter app,

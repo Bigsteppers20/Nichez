@@ -42,8 +42,8 @@ Served under `/api/v1`. Errors on every endpoint follow [API_ERRORS.md](API_ERRO
 | `POST` | `/auth/phone/verify` | A3 Verify OTP | **Public, rate limited.** `{ challengeId, code }` → `{ session, isNewUser }`. A wrong code returns 400 `WRONG_CODE` with `attemptsLeft` — J3 renders the counter from it |
 | `POST` | `/auth/phone/resend` | A3 | **Public, rate limited.** `{ challengeId }` → `{ resendAfterSeconds }` |
 | `POST` | `/auth/phone/call` | J3 | **Not implemented (decision 12).** The voice fallback is not built; the route does not exist |
-| `POST` | `/auth/apple` | A1, A2 | `{ identityToken }` → `{ session, isNewUser }` |
-| `POST` | `/auth/google` | A1, A2 | `{ idToken }` → `{ session, isNewUser }` |
+| `POST` | `/auth/apple` | A1, A2 | **Not implemented (decision: client-side sign-in).** The app signs in with the Supabase SDK (`signInWithIdToken`, provider Apple); the route does not exist. The backend only verifies the resulting Supabase JWT |
+| `POST` | `/auth/google` | A1, A2 | **Not implemented (decision: client-side sign-in).** The app signs in with the Supabase SDK (`signInWithIdToken`, provider Google); the route does not exist. The backend only verifies the resulting Supabase JWT |
 | `POST` | `/auth/logout` | C5, J5 | |
 | `GET` | `/auth/session` | app boot | Drives `AuthGuard` |
 
@@ -129,7 +129,7 @@ optimistically — so the value has to be authoritative on the next fetch.
 | `GET` | `/posts/:id/comments?cursor=` | B2 Comments | → `Comment[]` |
 | `POST` | `/posts/:id/comments` | B2 | `{ body, parentId? }` — `parentId` makes it a reply |
 | `PUT` | `/comments/:id/reaction` | B2 | |
-| `GET` | `/posts/:id` | E1 Post detail | → post + `topComment` |
+| `GET` | `/posts/:id` | E1 Post detail | → `Post` (payload in §6) + `topComment` (Flow 5). The author also sees their own `processing` or `failed` post; anyone else only a `published` one, else 404 `POST_NOT_FOUND` |
 
 `Comment` — matches `lib/features/comments/domain/comment.dart`:
 
@@ -165,9 +165,9 @@ optimistically — so the value has to be authoritative on the next fetch.
 
 | Method | Path | Used by | Notes |
 |---|---|---|---|
-| `POST` | `/uploads/sign` | C1, G3 | → `{ uploadUrl, mediaId }` for a direct-to-storage PUT |
-| `PUT` | `<uploadUrl>` | C1, G3 | Progress drives the in-well bar (C1) and the dot spinner (G3) |
-| `POST` | `/posts` | C1, G2 | `{ mediaId, caption, nicheId, audience, allowComments, taggedUserIds }`. `audience` is `everyone` (the default) or `niche_members` (only members of the niche it is posted to). `caption` is at most 2200 characters |
+| `POST` | `/uploads/sign` | C1, G3 | `{ contentType, bytes }` → `{ uploadUrl, mediaId }` for a direct-to-storage PUT, valid 15 minutes. 400 `UNSUPPORTED_MEDIA_TYPE`, 413 `MEDIA_TOO_LARGE`, 429 `RATE_LIMITED`. Rules below |
+| `PUT` | `<uploadUrl>` | C1, G3 | Progress drives the in-well bar (C1) and the dot spinner (G3). Send exactly the signed `Content-Type` and `Content-Length`, or storage refuses it |
+| `POST` | `/posts` | C1, G2 | `{ mediaId, caption, nicheId, audience, allowComments, taggedUserIds }`. `audience` is `everyone` (the default) or `niche_members` (only members of the niche it is posted to). `caption` is at most 2200 characters. `allowComments` defaults to true; `taggedUserIds` holds at most 10. → 201 + `Post` (status `processing`). Refusals below |
 | `GET` | `/me/niches` | C1, G2, D4 | The "POST TO NICHE" chips |
 | `GET` | `/niches/:id/stats` | G4 Published | → `{ postsToday, freshWindow }` — G4 shows real reach, so don't fake these. Rules below. 404 `NICHE_NOT_FOUND` |
 | `DELETE` | `/posts/:id` | `ConfirmDialog` (no screen wired yet) | **Proposed** (FEATURE_MANIFEST). → 204, no body. The author deletes; a moderator of the post's niche or an admin removes. Anyone else, an unknown id, and a post already deleted or removed: 404 `POST_NOT_FOUND`. Rules below |
@@ -177,6 +177,45 @@ optimistically — so the value has to be authoritative on the next fetch.
 - `postsToday` — published posts in the niche over the **last 24 hours** (rolling, not since midnight). Deleted, removed and still-processing posts don't count. The same for every viewer.
 - `freshWindow` — how long a new post can expect to stay at the top of Fresh, worded to finish G4's "Yours is at the top of Fresh for …". It is the average gap between posts over the same 24 hours (24 h ÷ `postsToday`): `"the next minute"`, `"the next 8 minutes"`, `"the next 35 minutes"` (rounded to 5 from 15 minutes up), `"the next hour"`, `"the next 12 hours"`, or `"the next day"` when the niche had at most one post.
 - Cached per niche for 60 s (`Cache-Control: private, max-age=60`). Deleting or removing a published post refreshes its niche at once.
+
+`POST /uploads/sign` rules:
+
+- Allowed types and size caps are config (`uploads.*`). Defaults: `image/jpeg`, `image/png`, `image/gif`, `image/webp` up to 20 MB; `video/mp4`, `video/quicktime` up to 200 MB.
+- Each call creates a `pending` media owned by the caller. 30 per hour per user.
+
+`POST /posts` rules, checked in this order:
+
+- `mediaId` must be the caller's own media (404 `MEDIA_NOT_FOUND`, also for someone else's) and not already behind a post (409 `MEDIA_ALREADY_USED`).
+- `nicheId` must exist (404 `NICHE_NOT_FOUND`) and the caller must have joined it (403 `NOT_A_NICHE_MEMBER`).
+- Every tagged user must exist and must not be blocked either way with the author: 400 `TAGGED_USER_NOT_FOUND`, the same answer for both so a block is never revealed.
+- The stored file is checked: missing is 409 `MEDIA_NOT_UPLOADED` (PUT it, then retry); over the cap is 413 `MEDIA_TOO_LARGE`; first bytes that are not the declared type is 400 `MEDIA_TYPE_MISMATCH` (a PNG signed as `video/mp4`). Storage unreachable: 502 `STORAGE_UNAVAILABLE`, safe to retry.
+- On success the post is `processing`, its media is queued for processing, and the creation is written to the audit trail. 20 per hour per user (429 `RATE_LIMITED`).
+
+`Post` payload (`POST /posts`, `GET /posts/:id`), shaped like `FeedPost`:
+
+```jsonc
+{
+  "id": "…",
+  "author": { "id": "…", "name": "Jessica Marshal", "handle": "pivotmaster", "avatarUrl": null },
+  "nicheId": "…",
+  "niche": "Excel Pain",
+  "caption": "spent 3 hours making a pivot table do one thing. worth it.",
+  "audience": "everyone",       // everyone | niche_members
+  "allowComments": true,
+  "status": "processing",       // processing | published | failed
+  "isVideo": false,
+  "mediaUrl": "https://…",      // short-lived signed URL
+  "posterUrl": null,            // video poster frame once processed, else null
+  "sensitive": false,
+  "sensitiveReason": null,
+  "reactions": 0,
+  "comments": 0,
+  "createdAt": "2026-10-05T09:00:00Z",
+  "timeAgo": "now"              // now | 40m | 2h | 3d | 2w | 1y
+}
+```
+
+A `niche_members` post is visible only to members of its niche, and a post is hidden from anyone blocked either way with its author (both 404).
 
 `DELETE /posts/:id` rules:
 
@@ -275,6 +314,29 @@ table meme", no leading capital.
 | `POST` | `/posts/:id/send` | E5 | `{ userIds }` |
 | `POST` | `/posts/:id/reshare` | B1, E5 | `{ nicheId }` — cross-post into another niche |
 | `GET` | `/posts/:id/link` | E2, E5 | Shareable URL |
+
+---
+
+## 12 · Settings & account (FR-12)
+
+| Method | Path | Used by | Notes |
+|---|---|---|---|
+| `GET` | `/me/settings` | C5 | → `{ notifications, content }`. `notifications` is `{ pushReactions, pushComments, pushFollows, pushMentions, pushReshares, quietHoursEnabled, quietHoursStart, quietHoursEnd }` (times are `HH:mm`, 24-hour; defaults all on, quiet hours off, `22:00`–`07:00`). `content` is `{ sensitiveFilter, autoHideReported }` (`sensitiveFilter` ∈ `veil\|hide\|show`, default `veil`; `autoHideReported` default true). Dark mode is not stored here; it stays on the phone |
+| `PATCH` | `/me/settings` | C5 | `{ notifications?, content? }` — both parts and every field in them are optional, and what is left out stays as it is. → the same shape as the GET. 400 `VALIDATION_FAILED` for a time that is not `HH:mm` or a `sensitiveFilter` outside the three. The notification part can also be changed on its own with `PUT /me/preferences/push` (§10) |
+| `POST` | `/me/deactivate` | J5 | **Proposed** (FEATURE_MANIFEST §3.14). → 204. Hides the account until the person next signs in. Repeating it is harmless |
+| `DELETE` | `/me` | J5 | **Proposed** (FEATURE_MANIFEST §3.14). → 202 `{ deletionScheduledFor }`. Rules below |
+| `POST` | `/me/deletion/cancel` | J5 | **Proposed, not yet approved:** it is not in FEATURE_MANIFEST, which describes a grace period but no way to use it. → 204 and the account is back. 409 `NO_DELETION_PENDING` when nothing is waiting |
+| `POST` | `/me/data-export` | J5 | **Proposed** (FEATURE_MANIFEST §3.14). → 202 `{ status: "requested" }`. The request is recorded; a separate job fulfils it and emails the download link (**not built yet**). One request waits at a time: 409 `EXPORT_ALREADY_REQUESTED` until it is done |
+
+`GET /auth/session` carries two account fields: `reactivated` is true when this call brought a deactivated account back (a sign-in is what ends a deactivation), and `deletionScheduledFor` is the erasure date while a deletion is waiting, else null. Signing in does **not** cancel a deletion.
+
+`DELETE /me` rules:
+
+- The account is hidden at once. To everyone else the person, their posts and their comments read as unknown (404), the same answer as for a deactivated account. They can still sign in and call the API until the erasure.
+- `deletionScheduledFor` is the request time plus `account.deletion-grace` (14 days by default). Asking again keeps the first date.
+- A daily job (`account.deletion-cron`, 04:00 UTC by default) erases whoever is past the date, each person in one transaction with its audit row. Their posts are taken down (the files follow the usual 30-day retention), their comments are removed, and what they did to other people's content is deleted: reactions, saves, reshares, collections, drafts, follows, blocks, mutes, niche memberships, join requests, search history and push devices. The profile is cleared (name, handle, bio, photos) and the handle can be claimed again. A community they founded passes to its longest-standing moderator, else its longest-standing member, and is taken down if nobody else is in it.
+- After the erasure every call with their token answers 403 `ACCOUNT_DELETED`, even if the token has not expired. (The sign-in record at Supabase Auth is not removed yet; this is what stops it.)
+- The request, a cancellation and the erasure are each written to the audit trail.
 
 ---
 
