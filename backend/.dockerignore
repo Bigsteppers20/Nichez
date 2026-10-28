@@ -1,0 +1,9 @@
+# Keep secrets and build output out of the image and the build context.
+.env
+.env.*
+!.env.example
+target
+.git
+.idea
+.vscode
+*.log
