@@ -265,8 +265,9 @@ Then start the backend with these set (environment variables win over `backend/.
 | `STORAGE_SECRET_KEY` | `S3_PROTOCOL_ACCESS_KEY_SECRET` |
 | `STORAGE_BUCKET` | `media` |
 
-Sign, `PUT` and `POST /posts` all work against it. Uploaded posts stay `processing` until the media
-worker publishes them; nothing runs that locally yet.
+Sign, `PUT` and `POST /posts` all work against it. Uploaded posts stay `processing` until the
+backend's publish job (every 5 seconds, `POSTS_PUBLISH_INTERVAL`) publishes them. Set
+`POSTS_PUBLISH_ENABLED=false` when a separate media pipeline takes over the queue.
 
 ## Reset everything
 

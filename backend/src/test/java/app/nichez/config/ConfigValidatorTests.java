@@ -31,6 +31,9 @@ class ConfigValidatorTests {
         p.put("posts.purge-cron", "0 30 3 * * *");
         p.put("posts.purge-batch-size", "100");
         p.put("posts.create-per-hour", "20");
+        p.put("posts.publish-enabled", "true");
+        p.put("posts.publish-interval", "5s");
+        p.put("posts.publish-batch-size", "50");
         p.put("uploads.allowed-types", "image/jpeg,video/mp4");
         p.put("uploads.max-image-size", "20MB");
         p.put("uploads.max-video-size", "200MB");

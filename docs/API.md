@@ -190,6 +190,7 @@ optimistically — so the value has to be authoritative on the next fetch.
 - Every tagged user must exist and must not be blocked either way with the author: 400 `TAGGED_USER_NOT_FOUND`, the same answer for both so a block is never revealed.
 - The stored file is checked: missing is 409 `MEDIA_NOT_UPLOADED` (PUT it, then retry); over the cap is 413 `MEDIA_TOO_LARGE`; first bytes that are not the declared type is 400 `MEDIA_TYPE_MISMATCH` (a PNG signed as `video/mp4`). Storage unreachable: 502 `STORAGE_UNAVAILABLE`, safe to retry.
 - On success the post is `processing`, its media is queued for processing, and the creation is written to the audit trail. 20 per hour per user (429 `RATE_LIMITED`).
+- A background job (`PostPublishJob`) publishes the post a few seconds later (`posts.publish-interval`, 5 s by default): its media becomes `ready`, the post `published`, and the publish is audited as `POST_PUBLISHED`. There is no transcoding or poster frame yet, so `posterUrl` stays `null`. A client polls `GET /posts/:id` until `status` is `published`. A post deleted or removed while it waited is not published.
 
 `Post` payload (`POST /posts`, `GET /posts/:id`), shaped like `FeedPost`:
 

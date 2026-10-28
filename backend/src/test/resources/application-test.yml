@@ -33,3 +33,7 @@ cors:
 # Off for the shared test context so no background writer touches the database; RequestLogTests turns it on.
 request-log:
   enabled: false
+
+# Off for the shared test context so created posts stay `processing`; PostPublishJobTests turns it on.
+posts:
+  publish-enabled: false

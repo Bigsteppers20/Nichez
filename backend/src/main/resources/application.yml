@@ -49,6 +49,9 @@ posts:
   purge-cron: ${POSTS_PURGE_CRON:0 30 3 * * *}       # daily purge, UTC
   purge-batch-size: ${POSTS_PURGE_BATCH_SIZE:100}
   create-per-hour: ${POSTS_CREATE_PER_HOUR:20}       # per signed-in user
+  publish-enabled: ${POSTS_PUBLISH_ENABLED:true}     # in-process publisher; off once a real media pipeline takes the queue
+  publish-interval: ${POSTS_PUBLISH_INTERVAL:5s}     # pause between publisher passes
+  publish-batch-size: ${POSTS_PUBLISH_BATCH_SIZE:50}
 
 uploads:
   allowed-types: ${UPLOADS_ALLOWED_TYPES:image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime}
