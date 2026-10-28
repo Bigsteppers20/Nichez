@@ -69,7 +69,9 @@ public class AccountRepository {
                 "delete from user_niches where user_id = :u",
                 "delete from community_requests where user_id = :u",
                 "delete from search_history where user_id = :u",
-                "delete from devices where user_id = :u")) {
+                "delete from devices where user_id = :u",
+                // The request log keeps no link to an erased person.
+                "update request_logs set user_id = null where user_id = :u")) {
             jdbc.sql(sql).param("u", userId).update();
         }
         List<UUID> founded = jdbc.sql("select community_id from community_members where user_id = :u and role = 'founder'")

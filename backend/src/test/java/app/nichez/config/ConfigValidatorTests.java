@@ -68,6 +68,12 @@ class ConfigValidatorTests {
         p.put("account.deletion-grace", "14d");
         p.put("account.deletion-cron", "0 0 4 * * *");
         p.put("account.deletion-batch-size", "50");
+        p.put("request-log.enabled", "true");
+        p.put("request-log.flush-interval", "5s");
+        p.put("request-log.batch-size", "500");
+        p.put("request-log.queue-capacity", "10000");
+        p.put("request-log.retention", "30d");
+        p.put("request-log.purge-cron", "0 15 3 * * *");
         return p;
     }
 

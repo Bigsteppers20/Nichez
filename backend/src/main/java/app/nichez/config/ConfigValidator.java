@@ -36,6 +36,7 @@ public class ConfigValidator implements ApplicationListener<ApplicationEnvironme
             AppProperties.class,
             SocialProperties.class,
             AccountProperties.class,
+            RequestLogProperties.class,
             UploadProperties.class,
             StorageProperties.class,
             MediaUrlProperties.class,

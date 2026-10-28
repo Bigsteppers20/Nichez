@@ -251,10 +251,18 @@ class AccountApiTests extends ApiTest {
                 .andExpect(status().isNoContent());
         assertThat(count("select reaction_count from posts where id = ?", theirs)).isEqualTo(1);
         assertThat(count("select comment_count from posts where id = ?", theirs)).isEqualTo(1);
+        jdbc.update("""
+                insert into request_logs (created_at, request_id, method, route, status, duration_ms, user_id)
+                values (now(), 'erase-check', 'GET', '/api/v1/me', 200, 3, ?)""", gone.id());
 
         delete(gone, "/api/v1/me").andExpect(status().isAccepted());
         clock.advance(GRACE);
         assertThat(erasure.run()).isEqualTo(1);
+
+        // The request log keeps the call but no longer says whose it was.
+        assertThat(count("select count(*) from request_logs where request_id = 'erase-check' and user_id is null"))
+                .isEqualTo(1);
+        assertThat(count("select count(*) from request_logs where user_id = ?", gone.id())).isZero();
 
         // Their posts come down, to be purged with the usual retention.
         Map<String, Object> post = jdbc.queryForMap("select status, deleted_at from posts where id = ?", mine);

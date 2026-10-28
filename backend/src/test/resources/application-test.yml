@@ -29,3 +29,7 @@ media:
 
 cors:
   allowed-origins: http://localhost:3000
+
+# Off for the shared test context so no background writer touches the database; RequestLogTests turns it on.
+request-log:
+  enabled: false

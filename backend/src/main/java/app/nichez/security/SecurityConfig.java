@@ -62,6 +62,8 @@ class SecurityConfig {
                         .accessDeniedHandler(ProblemSecurityHandlers.accessDeniedHandler(mapper)))
                 // An erased account's token stays valid until it expires; refuse it once it is verified.
                 .addFilterAfter(new ErasedAccountFilter(erased, mapper), BearerTokenAuthenticationFilter.class)
+                // Tells the request log who is calling; after the erased-account check on purpose.
+                .addFilterAfter(new RequestUserFilter(), ErasedAccountFilter.class)
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint(ProblemSecurityHandlers.entryPoint(mapper))
                         .accessDeniedHandler(ProblemSecurityHandlers.accessDeniedHandler(mapper)));

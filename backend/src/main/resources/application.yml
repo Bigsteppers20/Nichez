@@ -86,6 +86,16 @@ account:
   deletion-cron: ${ACCOUNT_DELETION_CRON:0 0 4 * * *}          # daily erase, UTC
   deletion-batch-size: ${ACCOUNT_DELETION_BATCH_SIZE:50}
 
+request-log:
+  # Every call under /api is recorded in the request_logs table: route, status, milliseconds, caller.
+  # Never the query string, body or headers. Written in batches, so it cannot slow a request.
+  enabled: ${REQUEST_LOG_ENABLED:true}
+  flush-interval: ${REQUEST_LOG_FLUSH_INTERVAL:5s}      # how soon a request shows up in the table
+  batch-size: ${REQUEST_LOG_BATCH_SIZE:500}
+  queue-capacity: ${REQUEST_LOG_QUEUE_CAPACITY:10000}   # waiting entries kept in memory; more are dropped, not waited for
+  retention: ${REQUEST_LOG_RETENTION:30d}               # older rows are deleted by a daily job
+  purge-cron: ${REQUEST_LOG_PURGE_CRON:0 15 3 * * *}    # UTC
+
 supabase:
   url: ${SUPABASE_URL:}                # server-to-server calls to Supabase Auth
   anon-key: ${SUPABASE_ANON_KEY:}      # public API key, sent as the apikey header

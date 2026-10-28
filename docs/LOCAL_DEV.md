@@ -22,6 +22,23 @@ On Linux/macOS/WSL use `cp`, `./scripts/dev-up.sh` and `./scripts/seed-users.sh`
 
 Stop with `./scripts/dev-down.ps1` (or `.sh`). Data is kept between runs.
 
+## Starting it again
+
+Start Docker Desktop, then from the repo root:
+
+```powershell
+./scripts/run-backend-local.ps1
+```
+
+It starts the local Supabase if it is not running, creates the `media` bucket if it is missing, points
+the backend at the local stack and runs it. Stop it with Ctrl+C. The backend is at
+`http://localhost:8080` and Swagger at `http://localhost:8080/swagger-ui.html`. Test users are kept
+between runs, so `seed-users` is only needed after a database reset.
+
+`backend/.env` points at the hosted Supabase project and is not changed. The script sets the database,
+auth and storage settings for its own run only. Starting the backend any other way, such as the IDE's
+Run button, uses `.env` and therefore the hosted project.
+
 ## Ports
 
 | Port | Service | Phone needs it? |
@@ -187,6 +204,44 @@ cannot verify its tokens. Generate a key with
 
 The backend's S3 client does not yet have a setting for a custom endpoint
 (`http://localhost:9000`); that lands with the `media` feature.
+
+## Logs
+
+**Backend console.** The backend writes its own logs to the terminal that runs it and keeps no file. To
+keep them too: `./scripts/run-backend-local.ps1 2>&1 | Tee-Object -FilePath "$env:TEMP\nichez-backend.log"`.
+Every error body has a `requestId`; a 500 logs its cause next to that id.
+
+**Request log in Supabase.** Every call under `/api` is also written to the `request_logs` table:
+when it arrived, the `requestId`, method, route pattern (`/api/v1/posts/{id}`), status, how many
+milliseconds the answer took, and who called. It is written in batches every few seconds
+(`request-log.flush-interval`, 5 s by default), so it never slows a call, and it holds the same
+`requestId` that error bodies and the backend console carry. It never stores the query string, a
+body or any header, so no tokens, phone numbers or search words. A person's id is cleared from it when
+their account is erased, and rows are deleted after 30 days (`request-log.retention`).
+
+Read it in Supabase Studio (`http://127.0.0.1:54323`, SQL Editor or Table Editor) or with SQL:
+
+```sql
+-- the last 20 calls
+select created_at, method, route, status, duration_ms from request_logs order by created_at desc limit 20;
+
+-- the report: per route per hour, with errors and response times
+select * from request_log_hourly where hour > now() - interval '24 hours' order by p95_ms desc;
+
+-- everything about one call, from the requestId in an error body
+select * from request_logs where request_id = '<requestId>';
+
+-- server errors today
+select route, status, count(*) from request_logs
+where status >= 500 and created_at > now() - interval '1 day' group by 1, 2 order by 3 desc;
+```
+
+If the backend runs against a database that does not have the `request_logs` table yet (for example
+the hosted project before `npx supabase db push`), the writes fail with a warning every few seconds,
+and requests are not affected. Set `REQUEST_LOG_ENABLED=false` to switch it off.
+
+**Other parts of the stack:** `docker logs supabase_auth_Nichez_Backend --tail 100` (sign-in and OTP),
+`supabase_storage_Nichez_Backend` (uploads) and `supabase_db_Nichez_Backend` (Postgres).
 
 ## Storage without MinIO
 

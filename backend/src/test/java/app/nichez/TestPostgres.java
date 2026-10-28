@@ -79,7 +79,12 @@ public final class TestPostgres {
     }
 
     private static void startContainer() {
+        // The superuser must be called postgres, as on Supabase and in the embedded database: the migrations
+        // grant to that role by name. Testcontainers would otherwise create a superuser called test.
         PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:17-alpine")
+                .withUsername("postgres")
+                // Every cached Spring context in the suite keeps a pool of connections open; the default 100 runs out.
+                .withCommand("postgres", "-c", "max_connections=300")
                 .withCopyFileToContainer(MountableFile.forClasspathResource(ROLES_RESOURCE),
                         "/docker-entrypoint-initdb.d/00_supabase_roles.sql");
         int index = 1;
@@ -100,7 +105,11 @@ public final class TestPostgres {
 
     private static void startEmbedded() throws IOException, SQLException {
         // The first start unpacks the server binaries, which can take longer than the 10 s default on Windows.
-        EmbeddedPostgres postgres = EmbeddedPostgres.builder().setPGStartupWait(Duration.ofSeconds(90)).start();
+        EmbeddedPostgres postgres = EmbeddedPostgres.builder()
+                .setPGStartupWait(Duration.ofSeconds(90))
+                // Every cached Spring context in the suite keeps a pool of connections open; the default 100 runs out.
+                .setServerConfig("max_connections", "300")
+                .start();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 postgres.close();
