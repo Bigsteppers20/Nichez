@@ -6,7 +6,8 @@ WORKDIR /src
 # Dependencies first, so a code-only change reuses the cached layer.
 COPY .mvn .mvn
 COPY mvnw pom.xml ./
-RUN ./mvnw -B -q dependency:go-offline
+# Git on Windows can store mvnw without the executable bit; Linux builders then fail with "Permission denied".
+RUN chmod +x mvnw && ./mvnw -B -q dependency:go-offline
 COPY src src
 RUN ./mvnw -B -q -DskipTests package
 
