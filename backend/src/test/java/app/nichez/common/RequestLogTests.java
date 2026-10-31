@@ -38,6 +38,10 @@ class RequestLogTests extends ApiTest {
         return result.andReturn().getResponse().getHeader("X-Request-Id");
     }
 
+    private String codeOf(org.springframework.test.web.servlet.ResultActions result) throws Exception {
+        return json.readTree(result.andReturn().getResponse().getContentAsString()).path("code").asText();
+    }
+
     private Map<String, Object> rowFor(String requestId) {
         writer.flush();
         return jdbc.queryForMap("select * from request_logs where request_id = ?", requestId);
@@ -57,18 +61,20 @@ class RequestLogTests extends ApiTest {
         assertThat(((Number) row.get("duration_ms")).intValue()).isGreaterThanOrEqualTo(0);
         assertThat(row.get("user_id").toString()).isEqualTo(me.id().toString());
         assertThat(((Timestamp) row.get("created_at")).toInstant()).isEqualTo(START);
+        assertThat(row.get("error_code")).isNull();
     }
 
     @Test
     void theRoutePatternIsLoggedNotTheRealPath() throws Exception {
         User me = user();
 
-        String id = requestIdOf(get(me, "/api/v1/posts/00000000-0000-0000-0000-00000000abcd"));
+        var result = get(me, "/api/v1/posts/00000000-0000-0000-0000-00000000abcd");
 
-        Map<String, Object> row = rowFor(id);
+        Map<String, Object> row = rowFor(requestIdOf(result));
         assertThat(row.get("route")).isEqualTo("/api/v1/posts/{id}");
         assertThat(row.get("path")).isNull();
         assertThat(((Number) row.get("status")).intValue()).isEqualTo(404);
+        assertThat(row.get("error_code")).isNotNull().isEqualTo(codeOf(result));
     }
 
     @Test
@@ -80,6 +86,21 @@ class RequestLogTests extends ApiTest {
         assertThat(row.get("route")).isEqualTo("(unmatched)");
         assertThat(row.get("path")).isEqualTo("/api/v1/me/settings");
         assertThat(row.get("user_id")).isNull();
+        assertThat(row.get("error_code")).isEqualTo("AUTHENTICATION_REQUIRED");
+    }
+
+    @Test
+    void aRejectedRequestBodyIsLoggedWithTheValidationCode() throws Exception {
+        User me = user();
+
+        var result = mvc.perform(MockMvcRequestBuilders.put("/api/v1/me/handle")
+                .header("Authorization", "Bearer " + me.token())
+                .contentType("application/json")
+                .content("{}"));
+
+        Map<String, Object> row = rowFor(requestIdOf(result));
+        assertThat(((Number) row.get("status")).intValue()).isEqualTo(400);
+        assertThat(row.get("error_code")).isEqualTo("VALIDATION_FAILED");
     }
 
     @Test

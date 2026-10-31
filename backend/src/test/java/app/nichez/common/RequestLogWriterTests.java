@@ -35,7 +35,7 @@ class RequestLogWriterTests {
 
     private static RequestLogWriter.Entry entry(int n) {
         return new RequestLogWriter.Entry(Instant.parse("2026-10-27T10:00:00Z"), "req-" + n, "GET", "/api/v1/ping",
-                null, 200, n, null);
+                null, 200, n, null, null);
     }
 
     @Test

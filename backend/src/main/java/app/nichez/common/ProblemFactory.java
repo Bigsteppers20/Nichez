@@ -31,6 +31,10 @@ public final class ProblemFactory {
         if (problem.getProperties() == null || !problem.getProperties().containsKey("code")) {
             problem.setProperty("code", code);
         }
+        if (request != null) {
+            // Every error body passes through here, so this is where the request log learns why a call failed.
+            request.setAttribute(RequestLogFilter.ERROR_CODE_ATTRIBUTE, problem.getProperties().get("code"));
+        }
         String requestId = request != null ? RequestIdFilter.of(request) : null;
         if (requestId != null) {
             problem.setProperty("requestId", requestId);

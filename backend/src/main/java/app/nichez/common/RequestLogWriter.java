@@ -33,16 +33,20 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(prefix = "request-log", name = "enabled", havingValue = "true")
 public class RequestLogWriter {
 
-    /** One finished request. {@code path} is set only when no route matched; {@code userId} only when signed in. */
+    /**
+     * One finished request. {@code path} is set only when no route matched; {@code userId} only when signed in;
+     * {@code errorCode} only when it failed.
+     */
     public record Entry(Instant at, String requestId, String method, String route, String path, int status,
-            int durationMs, UUID userId) {
+            int durationMs, UUID userId, String errorCode) {
     }
 
     private static final Logger log = LoggerFactory.getLogger(RequestLogWriter.class);
 
     private static final String INSERT = """
-            insert into request_logs (created_at, request_id, method, route, path, status, duration_ms, user_id)
-            values (?, ?, ?, ?, ?, ?, ?, ?)""";
+            insert into request_logs (created_at, request_id, method, route, path, status, duration_ms, user_id,
+                                      error_code)
+            values (?, ?, ?, ?, ?, ?, ?, ?, ?)""";
     private static final int PURGE_CHUNK = 5000;
 
     private final JdbcTemplate jdbc;
@@ -125,6 +129,7 @@ public class RequestLogWriter {
             } else {
                 ps.setObject(8, e.userId());
             }
+            ps.setString(9, e.errorCode());
         });
     }
 
