@@ -29,7 +29,7 @@ public final class NicheDtos {
     public record MyNiche(UUID id, String label, String slug) {
     }
 
-    /** The caller's picks from the taxonomy (at least 3). Niches joined elsewhere are kept. */
+    /** The caller's picks from the taxonomy (one or more). Niches joined elsewhere are kept. */
     public record SetNichesRequest(@NotEmpty @Size(max = 40) List<@NotNull UUID> nicheIds) {
     }
 

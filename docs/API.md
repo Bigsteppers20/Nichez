@@ -69,9 +69,9 @@ Phone sign-in rules (all limits are config, `auth.sms.*`):
 | Method | Path | Used by | Notes |
 |---|---|---|---|
 | `GET` | `/handles/check?handle=` | A4 Username | → `{ available: bool, suggestions: string[] }`. Needs a signed-in user; 60 per minute per user (429 `RATE_LIMITED`). A handle that breaks a rule is `available: false`, not an error. `suggestions` is empty when available, otherwise 3 free alternatives (the input plus digits or niche words). Debounce client-side; the screen has `HandleStatus.checking` for the in-flight state |
-| `PUT` | `/me/handle` | A4 | `{ handle }` → `{ handle }`. Same rules as the check. 400 `HANDLE_INVALID`, 400 `HANDLE_RESERVED`, 409 `HANDLE_TAKEN`. Sets `onboarded_at` once the user has a handle and at least 3 niches |
+| `PUT` | `/me/handle` | A4 | `{ handle }` → `{ handle }`. Same rules as the check. 400 `HANDLE_INVALID`, 400 `HANDLE_RESERVED`, 409 `HANDLE_TAKEN`. Sets `onboarded_at` once the user has a handle and at least one niche |
 | `GET` | `/niches/taxonomy` | A5 Pick niches | → `NicheGroup[]`: `{ name, strict, options: [{ id, label }] }`. **`strict: true`** makes the group single-choice (Religion). The client enforces it, the server must too |
-| `PUT` | `/me/niches` | A5, C5, H3 | `{ nicheIds: string[] }` — min 3 |
+| `PUT` | `/me/niches` | A5, C5, H3 | `{ nicheIds: string[] }`: one or more, up to 40. An empty list is 400 `VALIDATION_FAILED`; two from a strict group (Religion) is 400 `ONE_NICHE_PER_GROUP`; an unknown id is 404 `NICHE_NOT_FOUND` |
 | `GET` | `/creators/suggested` | A6 | → `SuggestedCreator[]`: `{ id, name, handle, niche, imageUrl, following }`. `niche` is *why* they're suggested |
 | `POST` | `/users/:id/follow` | A6, H1, H2, E1 | |
 | `DELETE` | `/users/:id/follow` | same | |

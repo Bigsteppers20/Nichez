@@ -87,7 +87,8 @@ public class NicheService {
     }
 
     /**
-     * Replaces the caller's picks among the taxonomy niches. At least 3 (400 {@code TOO_FEW_NICHES});
+     * Replaces the caller's picks among the taxonomy niches: one or as many as they like (none is
+     * 400 {@code TOO_FEW_NICHES}, though the request's own validation turns an empty list away first);
      * at most one from a strict group such as Religion (400 {@code ONE_NICHE_PER_GROUP}); every id
      * must be a taxonomy niche (404 {@code NICHE_NOT_FOUND}). Niches the caller joined by other
      * means are kept. Completing the picks can finish onboarding.
@@ -102,7 +103,8 @@ public class NicheService {
         }
         if (picks.size() < HandleService.MIN_NICHES_TO_ONBOARD) {
             throw new ApiException(HttpStatus.BAD_REQUEST, TOO_FEW_NICHES,
-                    "Pick at least " + HandleService.MIN_NICHES_TO_ONBOARD + " niches.");
+                    HandleService.MIN_NICHES_TO_ONBOARD == 1 ? "Pick at least one niche."
+                            : "Pick at least " + HandleService.MIN_NICHES_TO_ONBOARD + " niches.");
         }
         Map<String, Long> perStrictGroup = new HashMap<>();
         found.stream().filter(Niche::strict).forEach(n -> perStrictGroup.merge(n.groupName(), 1L, Long::sum));

@@ -31,8 +31,8 @@ public class HandleService {
     public static final String HANDLE_RESERVED = "HANDLE_RESERVED";
     public static final String HANDLE_TAKEN = "HANDLE_TAKEN";
 
-    /** A user is onboarded once they have a handle and at least this many niches (API.md: min 3). */
-    public static final int MIN_NICHES_TO_ONBOARD = 3;
+    /** A user is onboarded once they have a handle and at least this many niches (API.md: min 1). */
+    public static final int MIN_NICHES_TO_ONBOARD = 1;
 
     private static final Logger log = LoggerFactory.getLogger(HandleService.class);
 

@@ -22,7 +22,7 @@ Written against the app, so a few of its assumptions differ from CLAUDE.md and `
 | JSON casing | `snake_case` (`my_reaction`, `hls_url`, `next_cursor`) | `camelCase` (`myReaction`, `nextCursor`), rule 10 | No: camelCase |
 | Error body | `{ error: { code, message } }` | `API_ERRORS.md`: `code` at the top level | No: `API_ERRORS.md` |
 | Handle rules | 3–24 chars, `[a-z0-9._]`, lower case | 3–30 chars, `a-zA-Z0-9_.`, stored as typed, compared ignoring case | Yes |
-| Minimum niches | At least 1 | At least 3 (`PUT /me/niches`, and `onboarded_at`) | Yes |
+| Minimum niches | At least 1 | At least 1 (`PUT /me/niches`, and `onboarded_at`) | No: at least 1 (owner, 2026-10-31) |
 | Handle check | `GET /handles/{handle}/availability` | `GET /handles/check?handle=` | No: `API.md` |
 | Suggested creators | `GET /onboarding/suggested-creators` | `GET /creators/suggested` | No: `API.md` |
 | Phone OTP | Direct Supabase Auth calls (`/auth/v1/otp`, `/verify`) | The backend wraps them: `/api/v1/auth/phone/{start,verify,resend}` | No: `API.md` |

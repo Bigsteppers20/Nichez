@@ -93,10 +93,9 @@ class OnboardingAndProfileApiTests extends ApiTest {
     }
 
     @Test
-    void picksNeedThreeNichesAndOnlyOneFromAStrictGroup() throws Exception {
+    void picksNeedAtLeastOneNicheAndOnlyOneFromAStrictGroup() throws Exception {
         User me = newcomer();
 
-        expectError(put(me, "/api/v1/me/niches", body("nicheIds", ids("football"))), 400, "TOO_FEW_NICHES");
         expectError(put(me, "/api/v1/me/niches", body("nicheIds", ids("christianity", "islam", "football"))), 400,
                 "ONE_NICHE_PER_GROUP");
         expectError(put(me, "/api/v1/me/niches", body("nicheIds", List.of(UUID.randomUUID(), niche("football"), niche("backend")))),
@@ -107,6 +106,28 @@ class OnboardingAndProfileApiTests extends ApiTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.items.length()").value(3));
         assertThat(count("select member_count from niches where slug = 'football'")).isEqualTo(1);
+    }
+
+    @Test
+    void aSingleNicheIsAValidChoice() throws Exception {
+        User me = newcomer();
+
+        put(me, "/api/v1/me/niches", body("nicheIds", ids("football")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.length()").value(1))
+                .andExpect(jsonPath("$.items[0].slug").value("football"));
+        get(me, "/api/v1/auth/session").andExpect(jsonPath("$.hasNiches").value(true));
+    }
+
+    @Test
+    void oneNicheAndAHandleAreEnoughToFinishOnboarding() throws Exception {
+        User me = newcomer();
+        put(me, "/api/v1/me/handle", body("handle", "solo_pick")).andExpect(status().isOk());
+        get(me, "/api/v1/auth/session").andExpect(jsonPath("$.onboarded").value(false));
+
+        put(me, "/api/v1/me/niches", body("nicheIds", ids("backend"))).andExpect(status().isOk());
+
+        get(me, "/api/v1/auth/session").andExpect(jsonPath("$.onboarded").value(true));
     }
 
     @Test

@@ -349,28 +349,27 @@ class HandleApiIntegrationTests {
     // --- onboarded_at ----------------------------------------------------------------
 
     @Test
-    void onboardedAtIsSetWhenTheHandleCompletesThreeNiches() throws Exception {
+    void onboardedAtIsSetWhenTheHandleCompletesOneNiche() throws Exception {
         TestUser user = newUser();
-        joinNiches(user, 3);
+        joinNiches(user, 1);
         claimOk(user, "all_set");
         assertThat(onboardedAt(user)).isEqualTo(START);
     }
 
     @Test
-    void twoNichesAreNotEnough() throws Exception {
+    void aHandleWithoutANicheIsNotEnough() throws Exception {
         TestUser user = newUser();
-        joinNiches(user, 2);
         claimOk(user, "almost_there");
         assertThat(onboardedAt(user)).isNull();
     }
 
     @Test
-    void anAlreadyChosenHandleIsPickedUpOnceTheThirdNicheExists() throws Exception {
+    void anAlreadyChosenHandleIsPickedUpOnceTheFirstNicheExists() throws Exception {
         TestUser user = newUser();
         claimOk(user, "handle_first");
         assertThat(onboardedAt(user)).isNull();
 
-        joinNiches(user, 3);
+        joinNiches(user, 1);
         clock.advance(Duration.ofMinutes(5));
         claimOk(user, "handle_first");
         assertThat(onboardedAt(user)).isEqualTo(START.plus(Duration.ofMinutes(5)));
