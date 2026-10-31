@@ -1,0 +1,4070 @@
+"openapi": "3.1.0"
+"info":
+  "title": "Nichez API"
+  "description": "Nichez backend API, served under /api/v1. Every endpoint needs a Supabase access token (Authorization: Bearer <token>) except those with `security: []`. Errors are RFC 9457 problem+json bodies with a stable `code`; see docs/API_ERRORS.md. Contract: docs/API.md."
+  "version": "v1"
+"servers":
+  - "url": "https://nichez-api.onrender.com"
+    "description": "Production (Render)"
+  - "url": "http://localhost:8080"
+    "description": "Local backend"
+"security":
+  - "supabaseJwt": []
+"paths":
+  "/api/v1/auth/logout":
+    "post":
+      "tags":
+        - "Auth"
+      "operationId": "logout"
+      "responses":
+        "200":
+          "description": "OK"
+  "/api/v1/auth/phone/resend":
+    "post":
+      "tags":
+        - "Auth"
+      "operationId": "resend"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/ResendPhoneRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/ResendPhoneResponse"
+      "security": []
+  "/api/v1/auth/phone/start":
+    "post":
+      "tags":
+        - "Auth"
+      "operationId": "start"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/StartPhoneRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/StartPhoneResponse"
+      "security": []
+  "/api/v1/auth/phone/verify":
+    "post":
+      "tags":
+        - "Auth"
+      "operationId": "verify"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/VerifyPhoneRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/VerifyPhoneResponse"
+      "security": []
+  "/api/v1/auth/session":
+    "get":
+      "tags":
+        - "Profile"
+      "operationId": "session"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/SessionResponse"
+  "/api/v1/collections/{id}":
+    "delete":
+      "tags":
+        - "Collections"
+      "operationId": "delete_1"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+    "patch":
+      "tags":
+        - "Collections"
+      "operationId": "rename"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/CollectionRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CollectionResponse"
+  "/api/v1/collections/{id}/posts/{postId}":
+    "put":
+      "tags":
+        - "Collections"
+      "operationId": "addPost"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+        - "name": "postId"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+    "delete":
+      "tags":
+        - "Collections"
+      "operationId": "removePost"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+        - "name": "postId"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+  "/api/v1/comments/{id}":
+    "delete":
+      "tags":
+        - "Reactions & comments"
+      "operationId": "delete_3"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+  "/api/v1/comments/{id}/reaction":
+    "put":
+      "tags":
+        - "Reactions & comments"
+      "operationId": "reactToComment"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/CommentReactionRequest"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CommentReactionResponse"
+    "delete":
+      "tags":
+        - "Reactions & comments"
+      "operationId": "clearCommentReaction"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CommentReactionResponse"
+  "/api/v1/communities":
+    "get":
+      "tags":
+        - "Communities"
+      "operationId": "list_2"
+      "parameters":
+        - "name": "tab"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "q"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "cursor"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "limit"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "integer"
+            "format": "int32"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPageCommunityResponse"
+    "post":
+      "tags":
+        - "Communities"
+      "operationId": "create_4"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/CreateCommunityRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CommunityResponse"
+  "/api/v1/communities/discover":
+    "get":
+      "tags":
+        - "Communities"
+      "operationId": "discover"
+      "parameters":
+        - "name": "q"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "cursor"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "limit"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "integer"
+            "format": "int32"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPageCommunityResponse"
+  "/api/v1/communities/{id}":
+    "get":
+      "tags":
+        - "Communities"
+      "operationId": "get_1"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CommunityResponse"
+  "/api/v1/communities/{id}/invite-link":
+    "get":
+      "tags":
+        - "Communities"
+      "operationId": "inviteLink_1"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "type": "object"
+                "additionalProperties":
+                  "type": "string"
+  "/api/v1/communities/{id}/invites":
+    "post":
+      "tags":
+        - "Communities"
+      "operationId": "invite"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/InviteRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/InviteResult"
+  "/api/v1/communities/{id}/join":
+    "post":
+      "tags":
+        - "Communities"
+      "operationId": "join_1"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/JoinState"
+    "delete":
+      "tags":
+        - "Communities"
+      "operationId": "leave_1"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/JoinState"
+  "/api/v1/communities/{id}/members":
+    "get":
+      "tags":
+        - "Communities"
+      "operationId": "members"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+        - "name": "filter"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "cursor"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "limit"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "integer"
+            "format": "int32"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPageMemberItem"
+  "/api/v1/communities/{id}/members/{userId}":
+    "delete":
+      "tags":
+        - "Communities"
+      "operationId": "removeMember"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+        - "name": "userId"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+    "patch":
+      "tags":
+        - "Communities"
+      "operationId": "changeRole"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+        - "name": "userId"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/ChangeRoleRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/MemberItem"
+  "/api/v1/communities/{id}/moderation/queue":
+    "get":
+      "tags":
+        - "Safety"
+      "operationId": "communityQueue"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+        - "name": "tab"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "cursor"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "limit"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "integer"
+            "format": "int32"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPageReportItem"
+  "/api/v1/communities/{id}/posts":
+    "get":
+      "tags":
+        - "Communities"
+      "operationId": "posts_2"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+        - "name": "cursor"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "limit"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "integer"
+            "format": "int32"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPagePostResponse"
+  "/api/v1/communities/{id}/requests/{userId}/approve":
+    "post":
+      "tags":
+        - "Communities"
+      "operationId": "approve"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+        - "name": "userId"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/MemberItem"
+  "/api/v1/communities/{id}/requests/{userId}/deny":
+    "post":
+      "tags":
+        - "Communities"
+      "operationId": "deny"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+        - "name": "userId"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+  "/api/v1/communities/{id}/rules":
+    "get":
+      "tags":
+        - "Communities"
+      "operationId": "rules"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/RulesResponse"
+  "/api/v1/config":
+    "get":
+      "tags":
+        - "App config"
+      "operationId": "config"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/AppConfig"
+      "security": []
+  "/api/v1/creators/suggested":
+    "get":
+      "tags":
+        - "Graph"
+      "operationId": "suggested"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPageSuggestedCreator"
+  "/api/v1/devices/{token}":
+    "delete":
+      "tags":
+        - "Activity"
+      "operationId": "removeDevice"
+      "parameters":
+        - "name": "token"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+      "responses":
+        "200":
+          "description": "OK"
+  "/api/v1/drafts/{id}":
+    "delete":
+      "tags":
+        - "Stories, drafts & insights"
+      "operationId": "deleteDraft"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+  "/api/v1/explore/recent":
+    "get":
+      "tags":
+        - "Search"
+      "operationId": "recent"
+      "parameters":
+        - "name": "cursor"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "limit"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "integer"
+            "format": "int32"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPagePostResponse"
+  "/api/v1/explore/trending":
+    "get":
+      "tags":
+        - "Search"
+      "operationId": "trending"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPageTrendingNiche"
+  "/api/v1/feed":
+    "get":
+      "tags":
+        - "Feed"
+      "operationId": "home"
+      "parameters":
+        - "name": "niche"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+            "format": "uuid"
+        - "name": "cursor"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "limit"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "integer"
+            "format": "int32"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPagePostResponse"
+  "/api/v1/feed/niches":
+    "get":
+      "tags":
+        - "Feed"
+      "operationId": "tabs"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPageMyNiche"
+  "/api/v1/handles/check":
+    "get":
+      "tags":
+        - "Onboarding"
+      "operationId": "check"
+      "parameters":
+        - "name": "handle"
+          "in": "query"
+          "required": true
+          "schema":
+            "type": "string"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/HandleCheckResponse"
+  "/api/v1/links/{code}":
+    "get":
+      "tags":
+        - "Sharing"
+      "operationId": "resolve"
+      "parameters":
+        - "name": "code"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/PublicPost"
+      "security": []
+  "/api/v1/me":
+    "get":
+      "tags":
+        - "Profile"
+      "operationId": "me"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/MeResponse"
+    "delete":
+      "tags":
+        - "Account"
+      "operationId": "delete"
+      "responses":
+        "202":
+          "description": "Accepted"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/DeletionScheduled"
+    "patch":
+      "tags":
+        - "Profile"
+      "operationId": "patch"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/UpdateProfileRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/UserProfileResponse"
+  "/api/v1/me/activity":
+    "get":
+      "tags":
+        - "Activity"
+      "operationId": "list_3"
+      "parameters":
+        - "name": "filter"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "cursor"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "limit"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "integer"
+            "format": "int32"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPageActivityItemResponse"
+  "/api/v1/me/activity/read":
+    "post":
+      "tags":
+        - "Activity"
+      "operationId": "readAll"
+      "responses":
+        "200":
+          "description": "OK"
+  "/api/v1/me/activity/unread-count":
+    "get":
+      "tags":
+        - "Activity"
+      "operationId": "unreadCount"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/UnreadCount"
+  "/api/v1/me/analytics":
+    "get":
+      "tags":
+        - "Stories, drafts & insights"
+      "operationId": "myAnalytics"
+      "parameters":
+        - "name": "cursor"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "limit"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "integer"
+            "format": "int32"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/MyAnalytics"
+  "/api/v1/me/avatar":
+    "post":
+      "tags":
+        - "Profile"
+      "operationId": "setAvatar"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/SetImageRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/UserProfileResponse"
+    "delete":
+      "tags":
+        - "Profile"
+      "operationId": "removeAvatar"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/UserProfileResponse"
+  "/api/v1/me/collections":
+    "get":
+      "tags":
+        - "Collections"
+      "operationId": "list_1"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPageCollectionResponse"
+    "post":
+      "tags":
+        - "Collections"
+      "operationId": "create_3"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/CollectionRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CollectionResponse"
+  "/api/v1/me/collections/{id}":
+    "get":
+      "tags":
+        - "Collections"
+      "operationId": "posts_1"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+        - "name": "cursor"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "limit"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "integer"
+            "format": "int32"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPagePostResponse"
+  "/api/v1/me/content-preferences":
+    "get":
+      "tags":
+        - "Safety"
+      "operationId": "preferences"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/ContentPreferencesResponse"
+    "patch":
+      "tags":
+        - "Safety"
+      "operationId": "updatePreferences"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/UpdateContentPreferences"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/ContentPreferencesResponse"
+  "/api/v1/me/cover":
+    "put":
+      "tags":
+        - "Profile"
+      "operationId": "setCover"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/SetImageRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/UserProfileResponse"
+    "delete":
+      "tags":
+        - "Profile"
+      "operationId": "removeCover"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/UserProfileResponse"
+  "/api/v1/me/data-export":
+    "post":
+      "tags":
+        - "Account"
+      "operationId": "export"
+      "responses":
+        "202":
+          "description": "Accepted"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/ExportRequested"
+  "/api/v1/me/deactivate":
+    "post":
+      "tags":
+        - "Account"
+      "operationId": "deactivate"
+      "responses":
+        "200":
+          "description": "OK"
+  "/api/v1/me/deletion/cancel":
+    "post":
+      "tags":
+        - "Account"
+      "operationId": "cancelDeletion"
+      "responses":
+        "200":
+          "description": "OK"
+  "/api/v1/me/drafts":
+    "get":
+      "tags":
+        - "Stories, drafts & insights"
+      "operationId": "listDrafts"
+      "parameters":
+        - "name": "cursor"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "limit"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "integer"
+            "format": "int32"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/DraftsPage"
+    "post":
+      "tags":
+        - "Stories, drafts & insights"
+      "operationId": "createDraft"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/DraftRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/DraftResponse"
+  "/api/v1/me/follows":
+    "post":
+      "tags":
+        - "Graph"
+      "operationId": "followMany"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/FollowManyRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/FollowManyResponse"
+  "/api/v1/me/handle":
+    "put":
+      "tags":
+        - "Onboarding"
+      "operationId": "claim"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/ClaimHandleRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/ClaimHandleResponse"
+  "/api/v1/me/niches":
+    "get":
+      "tags":
+        - "Niches"
+      "operationId": "mine"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPageMyNiche"
+    "put":
+      "tags":
+        - "Niches"
+      "operationId": "setPicks"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/SetNichesRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPageMyNiche"
+  "/api/v1/me/notification-settings":
+    "get":
+      "tags":
+        - "Activity"
+      "operationId": "settings_1"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/Settings"
+    "patch":
+      "tags":
+        - "Activity"
+      "operationId": "patch_1"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/UpdateSettings"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/Settings"
+  "/api/v1/me/post-targets":
+    "get":
+      "tags":
+        - "Stories, drafts & insights"
+      "operationId": "targets"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPagePostTarget"
+  "/api/v1/me/preferences/auto-hide-reported":
+    "put":
+      "tags":
+        - "Safety"
+      "operationId": "autoHide"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/AutoHideRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/ContentPreferencesResponse"
+  "/api/v1/me/preferences/push":
+    "put":
+      "tags":
+        - "Activity"
+      "operationId": "put_1"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/UpdateSettings"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/Settings"
+  "/api/v1/me/profile":
+    "put":
+      "tags":
+        - "Profile"
+      "operationId": "put"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/UpdateProfileRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/UserProfileResponse"
+  "/api/v1/me/push-token":
+    "put":
+      "tags":
+        - "Activity"
+      "operationId": "registerDevice"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/RegisterDevice"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+  "/api/v1/me/restrictions":
+    "get":
+      "tags":
+        - "Safety"
+      "operationId": "restrictions"
+      "parameters":
+        - "name": "type"
+          "in": "query"
+          "required": true
+          "schema":
+            "type": "string"
+        - "name": "cursor"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "limit"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "integer"
+            "format": "int32"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPageRestrictionItem"
+  "/api/v1/me/saved":
+    "get":
+      "tags":
+        - "Collections"
+      "operationId": "saved"
+      "parameters":
+        - "name": "cursor"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "limit"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "integer"
+            "format": "int32"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPagePostResponse"
+  "/api/v1/me/settings":
+    "get":
+      "tags":
+        - "Account"
+      "operationId": "settings"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/SettingsResponse"
+    "patch":
+      "tags":
+        - "Account"
+      "operationId": "update"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/UpdateSettingsRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/SettingsResponse"
+  "/api/v1/me/share-targets":
+    "get":
+      "tags":
+        - "Sharing"
+      "operationId": "shareTargets"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPagePersonItem"
+  "/api/v1/niches":
+    "post":
+      "tags":
+        - "Niches"
+      "operationId": "create_2"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/CreateNicheRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CreatedNiche"
+  "/api/v1/niches/promoted":
+    "get":
+      "tags":
+        - "Search"
+      "operationId": "promoted"
+      "parameters":
+        - "name": "q"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+            "maxLength": 80
+            "minLength": 0
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/PromotedResponse"
+  "/api/v1/niches/taxonomy":
+    "get":
+      "tags":
+        - "Niches"
+      "operationId": "taxonomy"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPageGroup"
+  "/api/v1/niches/{id}/feed":
+    "get":
+      "tags":
+        - "Feed"
+      "operationId": "nicheFeed"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+        - "name": "cursor"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "limit"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "integer"
+            "format": "int32"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPagePostResponse"
+  "/api/v1/niches/{id}/invite-link":
+    "get":
+      "tags":
+        - "Niches"
+      "operationId": "inviteLink"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "type": "object"
+                "additionalProperties":
+                  "type": "string"
+  "/api/v1/niches/{id}/join":
+    "post":
+      "tags":
+        - "Niches"
+      "operationId": "join"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/Membership"
+    "delete":
+      "tags":
+        - "Niches"
+      "operationId": "leave"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/Membership"
+  "/api/v1/niches/{id}/mod-queue":
+    "get":
+      "tags":
+        - "Safety"
+      "operationId": "nicheQueue"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+        - "name": "tab"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "cursor"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "limit"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "integer"
+            "format": "int32"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPageReportItem"
+  "/api/v1/niches/{id}/report-reasons":
+    "get":
+      "tags":
+        - "Safety"
+      "operationId": "nicheReasons"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPageReportReason"
+  "/api/v1/niches/{id}/stats":
+    "get":
+      "tags":
+        - "Niches"
+      "operationId": "stats"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/NicheStatsResponse"
+  "/api/v1/notifications/{id}/read":
+    "post":
+      "tags":
+        - "Activity"
+      "operationId": "read"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+  "/api/v1/ping":
+    "get":
+      "tags":
+        - "Service"
+      "operationId": "ping"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/PingResponse"
+      "security": []
+  "/api/v1/posts":
+    "post":
+      "tags":
+        - "Posts"
+      "operationId": "create"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/CreatePostRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/PostResponse"
+  "/api/v1/posts/{id}":
+    "get":
+      "tags":
+        - "Posts"
+      "operationId": "get"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/PostResponse"
+    "delete":
+      "tags":
+        - "Posts"
+      "operationId": "delete_2"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+  "/api/v1/posts/{id}/analytics":
+    "get":
+      "tags":
+        - "Stories, drafts & insights"
+      "operationId": "analytics"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/PostAnalytics"
+  "/api/v1/posts/{id}/comments":
+    "get":
+      "tags":
+        - "Reactions & comments"
+      "operationId": "list"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+        - "name": "sort"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "cursor"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "limit"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "integer"
+            "format": "int32"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPageCommentResponse"
+    "post":
+      "tags":
+        - "Reactions & comments"
+      "operationId": "create_1"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/CreateCommentRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CommentResponse"
+  "/api/v1/posts/{id}/link":
+    "get":
+      "tags":
+        - "Sharing"
+      "operationId": "link"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/LinkResponse"
+  "/api/v1/posts/{id}/not-interested":
+    "post":
+      "tags":
+        - "Sharing"
+      "operationId": "notInterested"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+  "/api/v1/posts/{id}/reaction":
+    "put":
+      "tags":
+        - "Reactions & comments"
+      "operationId": "react"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/ReactionRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/PostReactionResponse"
+    "delete":
+      "tags":
+        - "Reactions & comments"
+      "operationId": "clearReaction"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/PostReactionResponse"
+  "/api/v1/posts/{id}/report":
+    "post":
+      "tags":
+        - "Safety"
+      "operationId": "reportPost"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/PostReportRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/ReportReceived"
+  "/api/v1/posts/{id}/reshare":
+    "post":
+      "tags":
+        - "Sharing"
+      "operationId": "crossPost"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/CrossPostRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CrossPostResponse"
+  "/api/v1/posts/{id}/reshares":
+    "post":
+      "tags":
+        - "Sharing"
+      "operationId": "reshare"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/ReshareResponse"
+  "/api/v1/posts/{id}/save":
+    "put":
+      "tags":
+        - "Collections"
+      "operationId": "save"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/SaveRequest"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/SaveState"
+    "delete":
+      "tags":
+        - "Collections"
+      "operationId": "unsave"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/SaveState"
+  "/api/v1/posts/{id}/shares":
+    "post":
+      "tags":
+        - "Sharing"
+      "operationId": "share"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/ShareRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/ShareCount"
+  "/api/v1/posts/{id}/status":
+    "get":
+      "tags":
+        - "Stories, drafts & insights"
+      "operationId": "status"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/PostStatusResponse"
+  "/api/v1/report-reasons":
+    "get":
+      "tags":
+        - "Safety"
+      "operationId": "reasons"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPageReportReason"
+  "/api/v1/reports":
+    "post":
+      "tags":
+        - "Safety"
+      "operationId": "report_1"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/ReportRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/ReportReceived"
+  "/api/v1/reports/{id}/verdict":
+    "post":
+      "tags":
+        - "Safety"
+      "operationId": "verdict"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/VerdictRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/VerdictResponse"
+  "/api/v1/search":
+    "get":
+      "tags":
+        - "Search"
+      "operationId": "results"
+      "parameters":
+        - "name": "q"
+          "in": "query"
+          "required": true
+          "schema":
+            "type": "string"
+            "maxLength": 80
+            "minLength": 0
+        - "name": "type"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "cursor"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "limit"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "integer"
+            "format": "int32"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/SearchPage"
+  "/api/v1/search/suggest":
+    "get":
+      "tags":
+        - "Search"
+      "operationId": "suggest"
+      "parameters":
+        - "name": "q"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+            "default": ""
+            "maxLength": 80
+            "minLength": 0
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPageSuggestion"
+  "/api/v1/stories":
+    "get":
+      "tags":
+        - "Stories, drafts & insights"
+      "operationId": "storyRow"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPageStoryGroup"
+    "post":
+      "tags":
+        - "Stories, drafts & insights"
+      "operationId": "createStory"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/StoryRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/StoryItem"
+  "/api/v1/stories/{id}/views":
+    "post":
+      "tags":
+        - "Stories, drafts & insights"
+      "operationId": "viewStory"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+  "/api/v1/uploads/sign":
+    "post":
+      "tags":
+        - "Uploads"
+      "operationId": "sign"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/SignUploadRequest"
+        "required": true
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/SignUploadResponse"
+  "/api/v1/users/search":
+    "get":
+      "tags":
+        - "Search"
+      "operationId": "people_1"
+      "parameters":
+        - "name": "q"
+          "in": "query"
+          "required": true
+          "schema":
+            "type": "string"
+            "maxLength": 80
+            "minLength": 0
+        - "name": "cursor"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "limit"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "integer"
+            "format": "int32"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPagePersonItem"
+  "/api/v1/users/{handleOrId}":
+    "get":
+      "tags":
+        - "Profile"
+      "operationId": "profile"
+      "parameters":
+        - "name": "handleOrId"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/UserProfileResponse"
+  "/api/v1/users/{id}/block":
+    "post":
+      "tags":
+        - "Safety"
+      "operationId": "block"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+    "delete":
+      "tags":
+        - "Safety"
+      "operationId": "unblock"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+  "/api/v1/users/{id}/follow":
+    "post":
+      "tags":
+        - "Graph"
+      "operationId": "follow"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/FollowState"
+    "delete":
+      "tags":
+        - "Graph"
+      "operationId": "unfollow"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/FollowState"
+  "/api/v1/users/{id}/followers":
+    "get":
+      "tags":
+        - "Graph"
+      "operationId": "people"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+        - "name": "filter"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "q"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "cursor"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "limit"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "integer"
+            "format": "int32"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPagePersonItem"
+  "/api/v1/users/{id}/mute":
+    "post":
+      "tags":
+        - "Safety"
+      "operationId": "mute"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+    "delete":
+      "tags":
+        - "Safety"
+      "operationId": "unmute"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+  "/api/v1/users/{id}/posts":
+    "get":
+      "tags":
+        - "Profile"
+      "operationId": "posts"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+        - "name": "tab"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "cursor"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "string"
+        - "name": "limit"
+          "in": "query"
+          "required": false
+          "schema":
+            "type": "integer"
+            "format": "int32"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/CursorPagePostResponse"
+  "/api/v1/users/{id}/stories":
+    "get":
+      "tags":
+        - "Stories, drafts & insights"
+      "operationId": "storiesOf"
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "format": "uuid"
+      "responses":
+        "200":
+          "description": "OK"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/StoryGroup"
+  "/api/v1/views":
+    "post":
+      "tags":
+        - "Streams"
+      "operationId": "report"
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/ViewsRequest"
+        "required": true
+      "responses":
+        "202":
+          "description": "Accepted"
+          "content":
+            "*/*":
+              "schema":
+                "$ref": "#/components/schemas/ViewsResponse"
+"components":
+  "schemas":
+    "ActivityItemResponse":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "actorId":
+          "type": "string"
+          "format": "uuid"
+        "actorName":
+          "type": "string"
+        "actorHandle":
+          "type": "string"
+        "message":
+          "type": "string"
+        "timeAgo":
+          "type": "string"
+        "createdAt":
+          "type": "string"
+          "format": "date-time"
+        "kind":
+          "type": "string"
+        "avatarUrl":
+          "type": "string"
+        "unread":
+          "type": "boolean"
+        "postId":
+          "type": "string"
+          "format": "uuid"
+        "commentId":
+          "type": "string"
+          "format": "uuid"
+    "AnalyticsTotals":
+      "type": "object"
+      "properties":
+        "views":
+          "type": "integer"
+          "format": "int64"
+        "viewsThisWeek":
+          "type": "integer"
+          "format": "int64"
+        "viewsLastWeek":
+          "type": "integer"
+          "format": "int64"
+        "reactions":
+          "type": "integer"
+          "format": "int64"
+        "comments":
+          "type": "integer"
+          "format": "int64"
+        "reshares":
+          "type": "integer"
+          "format": "int64"
+        "shares":
+          "type": "integer"
+          "format": "int64"
+        "saves":
+          "type": "integer"
+          "format": "int64"
+        "posts":
+          "type": "integer"
+          "format": "int32"
+        "followers":
+          "type": "integer"
+          "format": "int32"
+    "AppConfig":
+      "type": "object"
+      "properties":
+        "minAppVersion":
+          "type": "string"
+        "features":
+          "$ref": "#/components/schemas/Features"
+        "links":
+          "$ref": "#/components/schemas/Links"
+    "Author":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "name":
+          "type": "string"
+        "handle":
+          "type": "string"
+        "avatarUrl":
+          "type": "string"
+    "AutoHideRequest":
+      "type": "object"
+      "properties":
+        "enabled":
+          "type": "boolean"
+      "required":
+        - "enabled"
+    "ChangeRoleRequest":
+      "type": "object"
+      "properties":
+        "role":
+          "type": "string"
+          "minLength": 1
+          "pattern": "moderator|member"
+      "required":
+        - "role"
+    "ClaimHandleRequest":
+      "type": "object"
+      "properties":
+        "handle":
+          "type": "string"
+          "maxLength": 100
+          "minLength": 0
+      "required":
+        - "handle"
+    "ClaimHandleResponse":
+      "type": "object"
+      "properties":
+        "handle":
+          "type": "string"
+    "CollectionRequest":
+      "type": "object"
+      "properties":
+        "name":
+          "type": "string"
+          "maxLength": 40
+          "minLength": 0
+      "required":
+        - "name"
+    "CollectionResponse":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "name":
+          "type": "string"
+        "posts":
+          "type": "integer"
+          "format": "int32"
+        "createdAt":
+          "type": "string"
+          "format": "date-time"
+    "CommentReactionRequest":
+      "type": "object"
+      "properties":
+        "kind":
+          "type": "string"
+          "pattern": "love|laugh|fire|cry|clap|dead"
+    "CommentReactionResponse":
+      "type": "object"
+      "properties":
+        "myReaction":
+          "type": "string"
+        "score":
+          "type": "integer"
+          "format": "int32"
+    "CommentResponse":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "authorId":
+          "type": "string"
+          "format": "uuid"
+        "authorName":
+          "type": "string"
+        "authorHandle":
+          "type": "string"
+        "avatarUrl":
+          "type": "string"
+        "body":
+          "type": "string"
+        "createdAt":
+          "type": "string"
+          "format": "date-time"
+        "timeAgo":
+          "type": "string"
+        "score":
+          "type": "integer"
+          "format": "int32"
+        "isReply":
+          "type": "boolean"
+        "parentId":
+          "type": "string"
+          "format": "uuid"
+        "isMine":
+          "type": "boolean"
+        "myReaction":
+          "type": "string"
+    "CommunityResponse":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "name":
+          "type": "string"
+        "description":
+          "type": "string"
+        "members":
+          "type": "integer"
+          "format": "int32"
+        "emoji":
+          "type": "string"
+        "coverColor":
+          "type": "string"
+        "iconUrl":
+          "type": "string"
+        "homeNicheId":
+          "type": "string"
+          "format": "uuid"
+        "homeNiche":
+          "type": "string"
+        "isPrivate":
+          "type": "boolean"
+        "joined":
+          "type": "boolean"
+        "requested":
+          "type": "boolean"
+        "myRole":
+          "type": "string"
+        "memberFaces":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/UserBrief"
+    "ContentPreferencesResponse":
+      "type": "object"
+      "properties":
+        "sensitiveFilter":
+          "type": "string"
+        "autoHideReported":
+          "type": "boolean"
+    "CreateCommentRequest":
+      "type": "object"
+      "properties":
+        "body":
+          "type": "string"
+          "maxLength": 1000
+          "minLength": 0
+        "parentId":
+          "type": "string"
+          "format": "uuid"
+      "required":
+        - "body"
+    "CreateCommunityRequest":
+      "type": "object"
+      "properties":
+        "name":
+          "type": "string"
+          "maxLength": 40
+          "minLength": 2
+        "description":
+          "type": "string"
+          "maxLength": 300
+          "minLength": 0
+        "emoji":
+          "type": "string"
+          "maxLength": 16
+          "minLength": 1
+        "coverColor":
+          "type": "string"
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        "homeNicheId":
+          "type": "string"
+          "format": "uuid"
+        "isPrivate":
+          "type": "boolean"
+        "rules":
+          "type": "array"
+          "items":
+            "type": "string"
+            "maxLength": 200
+            "minLength": 0
+          "maxItems": 10
+          "minItems": 0
+      "required":
+        - "homeNicheId"
+        - "name"
+    "CreateNicheRequest":
+      "type": "object"
+      "properties":
+        "name":
+          "type": "string"
+          "maxLength": 30
+          "minLength": 2
+          "pattern": "^[\\p{L}\\p{N}][\\p{L}\\p{N} &'.-]*$"
+      "required":
+        - "name"
+    "CreatePostRequest":
+      "type": "object"
+      "properties":
+        "mediaId":
+          "type": "string"
+          "format": "uuid"
+        "caption":
+          "type": "string"
+          "maxLength": 2200
+          "minLength": 0
+        "nicheId":
+          "type": "string"
+          "format": "uuid"
+        "audience":
+          "type": "string"
+          "pattern": "everyone|niche_members"
+        "allowComments":
+          "type": "boolean"
+        "taggedUserIds":
+          "type": "array"
+          "items":
+            "type": "string"
+            "format": "uuid"
+          "maxItems": 10
+          "minItems": 0
+        "communityId":
+          "type": "string"
+          "format": "uuid"
+      "required":
+        - "mediaId"
+        - "nicheId"
+    "CreatedNiche":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "label":
+          "type": "string"
+        "slug":
+          "type": "string"
+    "CrossPostRequest":
+      "type": "object"
+      "properties":
+        "nicheId":
+          "type": "string"
+          "format": "uuid"
+      "required":
+        - "nicheId"
+    "CrossPostResponse":
+      "type": "object"
+      "properties":
+        "postId":
+          "type": "string"
+          "format": "uuid"
+        "nicheId":
+          "type": "string"
+          "format": "uuid"
+        "shares":
+          "type": "integer"
+          "format": "int32"
+    "CursorPageActivityItemResponse":
+      "type": "object"
+      "properties":
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/ActivityItemResponse"
+        "nextCursor":
+          "type": "string"
+    "CursorPageCollectionResponse":
+      "type": "object"
+      "properties":
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/CollectionResponse"
+        "nextCursor":
+          "type": "string"
+    "CursorPageCommentResponse":
+      "type": "object"
+      "properties":
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/CommentResponse"
+        "nextCursor":
+          "type": "string"
+    "CursorPageCommunityResponse":
+      "type": "object"
+      "properties":
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/CommunityResponse"
+        "nextCursor":
+          "type": "string"
+    "CursorPageGroup":
+      "type": "object"
+      "properties":
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/Group"
+        "nextCursor":
+          "type": "string"
+    "CursorPageMemberItem":
+      "type": "object"
+      "properties":
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/MemberItem"
+        "nextCursor":
+          "type": "string"
+    "CursorPageMyNiche":
+      "type": "object"
+      "properties":
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/MyNiche"
+        "nextCursor":
+          "type": "string"
+    "CursorPagePersonItem":
+      "type": "object"
+      "properties":
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/PersonItem"
+        "nextCursor":
+          "type": "string"
+    "CursorPagePostResponse":
+      "type": "object"
+      "properties":
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/PostResponse"
+        "nextCursor":
+          "type": "string"
+    "CursorPagePostTarget":
+      "type": "object"
+      "properties":
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/PostTarget"
+        "nextCursor":
+          "type": "string"
+    "CursorPageReportItem":
+      "type": "object"
+      "properties":
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/ReportItem"
+        "nextCursor":
+          "type": "string"
+    "CursorPageReportReason":
+      "type": "object"
+      "properties":
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/ReportReason"
+        "nextCursor":
+          "type": "string"
+    "CursorPageRestrictionItem":
+      "type": "object"
+      "properties":
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/RestrictionItem"
+        "nextCursor":
+          "type": "string"
+    "CursorPageStoryGroup":
+      "type": "object"
+      "properties":
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/StoryGroup"
+        "nextCursor":
+          "type": "string"
+    "CursorPageSuggestedCreator":
+      "type": "object"
+      "properties":
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/SuggestedCreator"
+        "nextCursor":
+          "type": "string"
+    "CursorPageSuggestion":
+      "type": "object"
+      "properties":
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/Suggestion"
+        "nextCursor":
+          "type": "string"
+    "CursorPageTrendingNiche":
+      "type": "object"
+      "properties":
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/TrendingNiche"
+        "nextCursor":
+          "type": "string"
+    "DeletionScheduled":
+      "type": "object"
+      "properties":
+        "deletionScheduledFor":
+          "type": "string"
+          "format": "date-time"
+    "DraftRequest":
+      "type": "object"
+      "properties":
+        "mediaId":
+          "type": "string"
+          "format": "uuid"
+        "nicheId":
+          "type": "string"
+          "format": "uuid"
+        "caption":
+          "type": "string"
+          "maxLength": 2200
+          "minLength": 0
+        "audience":
+          "type": "string"
+          "pattern": "everyone|niche_members"
+        "allowComments":
+          "type": "boolean"
+    "DraftResponse":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "mediaId":
+          "type": "string"
+          "format": "uuid"
+        "mediaUrl":
+          "type": "string"
+        "nicheId":
+          "type": "string"
+          "format": "uuid"
+        "caption":
+          "type": "string"
+        "audience":
+          "type": "string"
+        "allowComments":
+          "type": "boolean"
+        "updatedAt":
+          "type": "string"
+          "format": "date-time"
+        "timeAgo":
+          "type": "string"
+    "DraftsPage":
+      "type": "object"
+      "properties":
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/DraftResponse"
+        "nextCursor":
+          "type": "string"
+        "total":
+          "type": "integer"
+          "format": "int32"
+    "ExportRequested":
+      "type": "object"
+      "properties":
+        "status":
+          "type": "string"
+    "Features":
+      "type": "object"
+      "properties":
+        "live":
+          "type": "boolean"
+        "reels":
+          "type": "boolean"
+        "directMessages":
+          "type": "boolean"
+    "FollowManyRequest":
+      "type": "object"
+      "properties":
+        "userIds":
+          "type": "array"
+          "items":
+            "type": "string"
+            "format": "uuid"
+          "maxItems": 50
+          "minItems": 0
+      "required":
+        - "userIds"
+    "FollowManyResponse":
+      "type": "object"
+      "properties":
+        "followed":
+          "type": "integer"
+          "format": "int32"
+    "FollowState":
+      "type": "object"
+      "properties":
+        "isFollowing":
+          "type": "boolean"
+        "followers":
+          "type": "integer"
+          "format": "int32"
+    "Group":
+      "type": "object"
+      "properties":
+        "name":
+          "type": "string"
+        "strict":
+          "type": "boolean"
+        "options":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/Option"
+    "HandleCheckResponse":
+      "type": "object"
+      "properties":
+        "available":
+          "type": "boolean"
+        "suggestions":
+          "type": "array"
+          "items":
+            "type": "string"
+    "InviteRequest":
+      "type": "object"
+      "properties":
+        "userIds":
+          "type": "array"
+          "items":
+            "type": "string"
+            "format": "uuid"
+          "maxItems": 50
+          "minItems": 0
+      "required":
+        - "userIds"
+    "InviteResult":
+      "type": "object"
+      "properties":
+        "invited":
+          "type": "integer"
+          "format": "int32"
+    "JoinState":
+      "type": "object"
+      "properties":
+        "status":
+          "type": "string"
+        "members":
+          "type": "integer"
+          "format": "int32"
+    "LinkResponse":
+      "type": "object"
+      "properties":
+        "url":
+          "type": "string"
+    "Links":
+      "type": "object"
+      "properties":
+        "terms":
+          "type": "string"
+        "privacy":
+          "type": "string"
+    "MeResponse":
+      "type": "object"
+      "properties":
+        "profile":
+          "$ref": "#/components/schemas/UserProfileResponse"
+        "onboarding":
+          "$ref": "#/components/schemas/Onboarding"
+    "MemberItem":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "name":
+          "type": "string"
+        "handle":
+          "type": "string"
+        "avatarUrl":
+          "type": "string"
+        "verified":
+          "type": "boolean"
+        "role":
+          "type": "string"
+        "since":
+          "type": "string"
+          "format": "date-time"
+        "isYou":
+          "type": "boolean"
+    "Membership":
+      "type": "object"
+      "properties":
+        "joined":
+          "type": "boolean"
+        "members":
+          "type": "integer"
+          "format": "int32"
+    "MyAnalytics":
+      "type": "object"
+      "properties":
+        "totals":
+          "$ref": "#/components/schemas/AnalyticsTotals"
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/PostResponse"
+        "nextCursor":
+          "type": "string"
+    "MyNiche":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "label":
+          "type": "string"
+        "slug":
+          "type": "string"
+    "NicheResult":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "name":
+          "type": "string"
+        "slug":
+          "type": "string"
+        "members":
+          "type": "integer"
+          "format": "int32"
+        "joined":
+          "type": "boolean"
+    "NicheStatsResponse":
+      "type": "object"
+      "properties":
+        "postsToday":
+          "type": "integer"
+          "format": "int64"
+        "freshWindow":
+          "type": "string"
+    "Onboarding":
+      "type": "object"
+      "properties":
+        "hasHandle":
+          "type": "boolean"
+        "hasNiches":
+          "type": "boolean"
+        "hasPhoto":
+          "type": "boolean"
+        "onboarded":
+          "type": "boolean"
+    "Option":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "label":
+          "type": "string"
+    "PersonItem":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "name":
+          "type": "string"
+        "handle":
+          "type": "string"
+        "avatarUrl":
+          "type": "string"
+        "verified":
+          "type": "boolean"
+        "isFollowing":
+          "type": "boolean"
+        "isYou":
+          "type": "boolean"
+    "PingResponse":
+      "type": "object"
+      "properties":
+        "status":
+          "type": "string"
+        "version":
+          "type": "string"
+    "PostAnalytics":
+      "type": "object"
+      "properties":
+        "postId":
+          "type": "string"
+          "format": "uuid"
+        "views":
+          "type": "integer"
+          "format": "int64"
+        "viewsThisWeek":
+          "type": "integer"
+          "format": "int64"
+        "viewsLastWeek":
+          "type": "integer"
+          "format": "int64"
+        "weeklyChange":
+          "type": "number"
+          "format": "double"
+        "engagementRate":
+          "type": "number"
+          "format": "double"
+        "reactions":
+          "type": "integer"
+          "format": "int32"
+        "comments":
+          "type": "integer"
+          "format": "int32"
+        "reshares":
+          "type": "integer"
+          "format": "int32"
+        "shares":
+          "type": "integer"
+          "format": "int32"
+        "saves":
+          "type": "integer"
+          "format": "int32"
+        "reactionCounts":
+          "type": "object"
+          "additionalProperties":
+            "type": "integer"
+            "format": "int32"
+    "PostReactionResponse":
+      "type": "object"
+      "properties":
+        "myReaction":
+          "type": "string"
+        "reactions":
+          "type": "integer"
+          "format": "int32"
+    "PostReportRequest":
+      "type": "object"
+      "properties":
+        "reasonId":
+          "type": "string"
+          "minLength": 1
+          "pattern": "hate|wrong-niche|nudity|spam|religious|other"
+        "note":
+          "type": "string"
+          "maxLength": 500
+          "minLength": 0
+      "required":
+        - "reasonId"
+    "PostResponse":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "author":
+          "$ref": "#/components/schemas/Author"
+        "nicheId":
+          "type": "string"
+          "format": "uuid"
+        "niche":
+          "type": "string"
+        "communityId":
+          "type": "string"
+          "format": "uuid"
+        "caption":
+          "type": "string"
+        "audience":
+          "type": "string"
+        "allowComments":
+          "type": "boolean"
+        "status":
+          "type": "string"
+        "isVideo":
+          "type": "boolean"
+        "hasAudio":
+          "type": "boolean"
+        "mediaUrl":
+          "type": "string"
+        "posterUrl":
+          "type": "string"
+        "sensitive":
+          "type": "boolean"
+        "sensitiveReason":
+          "type": "string"
+        "reactions":
+          "type": "integer"
+          "format": "int32"
+        "comments":
+          "type": "integer"
+          "format": "int32"
+        "reshares":
+          "type": "integer"
+          "format": "int32"
+        "shares":
+          "type": "integer"
+          "format": "int32"
+        "saves":
+          "type": "integer"
+          "format": "int32"
+        "views":
+          "type": "integer"
+          "format": "int64"
+        "reactionCounts":
+          "type": "object"
+          "additionalProperties":
+            "type": "integer"
+            "format": "int32"
+        "myReaction":
+          "type": "string"
+        "saved":
+          "type": "boolean"
+        "isMine":
+          "type": "boolean"
+        "resharedBy":
+          "$ref": "#/components/schemas/ResharedBy"
+        "topComment":
+          "$ref": "#/components/schemas/TopComment"
+        "createdAt":
+          "type": "string"
+          "format": "date-time"
+        "timeAgo":
+          "type": "string"
+    "PostStatusResponse":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "status":
+          "type": "string"
+    "PostTarget":
+      "type": "object"
+      "properties":
+        "type":
+          "type": "string"
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "name":
+          "type": "string"
+        "nicheId":
+          "type": "string"
+          "format": "uuid"
+    "PromotedNiche":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "name":
+          "type": "string"
+        "members":
+          "type": "integer"
+          "format": "int32"
+        "postsToday":
+          "type": "integer"
+          "format": "int32"
+        "joined":
+          "type": "boolean"
+    "PromotedResponse":
+      "type": "object"
+      "properties":
+        "promotedNiche":
+          "$ref": "#/components/schemas/PromotedNiche"
+    "PublicPost":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "authorName":
+          "type": "string"
+        "authorHandle":
+          "type": "string"
+        "authorAvatarUrl":
+          "type": "string"
+        "niche":
+          "type": "string"
+        "caption":
+          "type": "string"
+        "isVideo":
+          "type": "boolean"
+        "mediaUrl":
+          "type": "string"
+        "posterUrl":
+          "type": "string"
+        "reactions":
+          "type": "integer"
+          "format": "int32"
+        "comments":
+          "type": "integer"
+          "format": "int32"
+        "createdAt":
+          "type": "string"
+          "format": "date-time"
+        "timeAgo":
+          "type": "string"
+    "ReactionRequest":
+      "type": "object"
+      "properties":
+        "kind":
+          "type": "string"
+          "minLength": 1
+          "pattern": "love|laugh|fire|cry|clap|dead"
+      "required":
+        - "kind"
+    "RegisterDevice":
+      "type": "object"
+      "properties":
+        "token":
+          "type": "string"
+          "maxLength": 4096
+          "minLength": 8
+        "platform":
+          "type": "string"
+          "minLength": 1
+          "pattern": "android|ios|web"
+      "required":
+        - "platform"
+        - "token"
+    "ReportItem":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "targetType":
+          "type": "string"
+        "targetId":
+          "type": "string"
+          "format": "uuid"
+        "reason":
+          "type": "string"
+        "reportCount":
+          "type": "integer"
+          "format": "int32"
+        "authorHandle":
+          "type": "string"
+        "excerpt":
+          "type": "string"
+        "mediaUrl":
+          "type": "string"
+        "severe":
+          "type": "boolean"
+        "verdict":
+          "type": "string"
+    "ReportReason":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+        "title":
+          "type": "string"
+        "subtitle":
+          "type": "string"
+        "severe":
+          "type": "boolean"
+    "ReportReceived":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+    "ReportRequest":
+      "type": "object"
+      "properties":
+        "targetType":
+          "type": "string"
+          "minLength": 1
+          "pattern": "post|comment|user|community"
+        "targetId":
+          "type": "string"
+          "format": "uuid"
+        "reasonId":
+          "type": "string"
+          "minLength": 1
+          "pattern": "hate|wrong-niche|nudity|spam|religious|other"
+        "note":
+          "type": "string"
+          "maxLength": 500
+          "minLength": 0
+      "required":
+        - "reasonId"
+        - "targetId"
+        - "targetType"
+    "ResendPhoneRequest":
+      "type": "object"
+      "properties":
+        "challengeId":
+          "type": "string"
+          "format": "uuid"
+      "required":
+        - "challengeId"
+    "ResendPhoneResponse":
+      "type": "object"
+      "properties":
+        "resendAfterSeconds":
+          "type": "integer"
+          "format": "int32"
+    "ReshareResponse":
+      "type": "object"
+      "properties":
+        "reshared":
+          "type": "boolean"
+        "reshares":
+          "type": "integer"
+          "format": "int32"
+    "ResharedBy":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "name":
+          "type": "string"
+        "handle":
+          "type": "string"
+    "RestrictionItem":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "name":
+          "type": "string"
+        "handle":
+          "type": "string"
+        "avatarUrl":
+          "type": "string"
+        "reason":
+          "type": "string"
+        "since":
+          "type": "string"
+          "format": "date-time"
+    "RulesResponse":
+      "type": "object"
+      "properties":
+        "rules":
+          "type": "array"
+          "items":
+            "type": "string"
+    "SaveRequest":
+      "type": "object"
+      "properties":
+        "collectionId":
+          "type": "string"
+          "format": "uuid"
+    "SaveState":
+      "type": "object"
+      "properties":
+        "saved":
+          "type": "boolean"
+        "saves":
+          "type": "integer"
+          "format": "int32"
+    "SearchPage":
+      "type": "object"
+      "properties":
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/SearchResult"
+        "nextCursor":
+          "type": "string"
+        "promotedNiche":
+          "$ref": "#/components/schemas/PromotedNiche"
+    "SearchResult":
+      "type": "object"
+      "properties":
+        "kind":
+          "type": "string"
+        "post":
+          "$ref": "#/components/schemas/PostResponse"
+        "niche":
+          "$ref": "#/components/schemas/NicheResult"
+        "person":
+          "$ref": "#/components/schemas/PersonItem"
+        "community":
+          "$ref": "#/components/schemas/CommunityResponse"
+    "SessionDto":
+      "type": "object"
+      "properties":
+        "accessToken":
+          "type": "string"
+        "refreshToken":
+          "type": "string"
+        "expiresAt":
+          "type": "string"
+          "format": "date-time"
+    "SessionResponse":
+      "type": "object"
+      "properties":
+        "userId":
+          "type": "string"
+          "format": "uuid"
+        "hasHandle":
+          "type": "boolean"
+        "hasNiches":
+          "type": "boolean"
+        "hasPhoto":
+          "type": "boolean"
+        "onboarded":
+          "type": "boolean"
+        "isAdmin":
+          "type": "boolean"
+        "reactivated":
+          "type": "boolean"
+        "deletionScheduledFor":
+          "type": "string"
+          "format": "date-time"
+    "SetImageRequest":
+      "type": "object"
+      "properties":
+        "mediaId":
+          "type": "string"
+          "format": "uuid"
+      "required":
+        - "mediaId"
+    "SetNichesRequest":
+      "type": "object"
+      "properties":
+        "nicheIds":
+          "type": "array"
+          "items":
+            "type": "string"
+            "format": "uuid"
+          "maxItems": 40
+          "minItems": 0
+      "required":
+        - "nicheIds"
+    "Settings":
+      "type": "object"
+      "properties":
+        "pushReactions":
+          "type": "boolean"
+        "pushComments":
+          "type": "boolean"
+        "pushFollows":
+          "type": "boolean"
+        "pushMentions":
+          "type": "boolean"
+        "pushReshares":
+          "type": "boolean"
+        "quietHoursEnabled":
+          "type": "boolean"
+        "quietHoursStart":
+          "type": "string"
+        "quietHoursEnd":
+          "type": "string"
+    "SettingsResponse":
+      "type": "object"
+      "properties":
+        "notifications":
+          "$ref": "#/components/schemas/Settings"
+        "content":
+          "$ref": "#/components/schemas/ContentPreferencesResponse"
+    "ShareCount":
+      "type": "object"
+      "properties":
+        "shares":
+          "type": "integer"
+          "format": "int32"
+    "ShareRequest":
+      "type": "object"
+      "properties":
+        "channel":
+          "type": "string"
+          "minLength": 1
+          "pattern": "link|send|cross_post|save_image"
+      "required":
+        - "channel"
+    "SignUploadRequest":
+      "type": "object"
+      "properties":
+        "contentType":
+          "type": "string"
+          "maxLength": 100
+          "minLength": 0
+        "bytes":
+          "type": "integer"
+          "format": "int64"
+      "required":
+        - "bytes"
+        - "contentType"
+    "SignUploadResponse":
+      "type": "object"
+      "properties":
+        "uploadUrl":
+          "type": "string"
+        "mediaId":
+          "type": "string"
+          "format": "uuid"
+    "StartPhoneRequest":
+      "type": "object"
+      "properties":
+        "dialCode":
+          "type": "string"
+          "maxLength": 8
+          "minLength": 0
+        "nationalNumber":
+          "type": "string"
+          "maxLength": 32
+          "minLength": 0
+      "required":
+        - "dialCode"
+        - "nationalNumber"
+    "StartPhoneResponse":
+      "type": "object"
+      "properties":
+        "challengeId":
+          "type": "string"
+          "format": "uuid"
+        "resendAfterSeconds":
+          "type": "integer"
+          "format": "int32"
+    "StoryGroup":
+      "type": "object"
+      "properties":
+        "author":
+          "$ref": "#/components/schemas/UserBrief"
+        "items":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/StoryItem"
+        "seen":
+          "type": "boolean"
+        "live":
+          "type": "boolean"
+        "isYou":
+          "type": "boolean"
+    "StoryItem":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "kind":
+          "type": "string"
+        "mediaUrl":
+          "type": "string"
+        "posterUrl":
+          "type": "string"
+        "text":
+          "type": "string"
+        "color":
+          "type": "string"
+        "createdAt":
+          "type": "string"
+          "format": "date-time"
+        "postedAgo":
+          "type": "string"
+        "expiresAt":
+          "type": "string"
+          "format": "date-time"
+        "allowReplies":
+          "type": "boolean"
+        "allowSharing":
+          "type": "boolean"
+        "seen":
+          "type": "boolean"
+    "StoryRequest":
+      "type": "object"
+      "properties":
+        "mediaId":
+          "type": "string"
+          "format": "uuid"
+        "body":
+          "type": "string"
+          "maxLength": 280
+          "minLength": 1
+        "color":
+          "type": "string"
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        "hiddenFromUserIds":
+          "type": "array"
+          "items":
+            "type": "string"
+            "format": "uuid"
+          "maxItems": 100
+          "minItems": 0
+        "allowReplies":
+          "type": "boolean"
+        "allowSharing":
+          "type": "boolean"
+    "SuggestedCreator":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "name":
+          "type": "string"
+        "handle":
+          "type": "string"
+        "niche":
+          "type": "string"
+        "imageUrl":
+          "type": "string"
+        "following":
+          "type": "boolean"
+    "Suggestion":
+      "type": "object"
+      "properties":
+        "title":
+          "type": "string"
+        "subtitle":
+          "type": "string"
+        "kind":
+          "type": "string"
+        "id":
+          "type": "string"
+          "format": "uuid"
+    "TopComment":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "authorName":
+          "type": "string"
+        "body":
+          "type": "string"
+        "score":
+          "type": "integer"
+          "format": "int32"
+        "timeAgo":
+          "type": "string"
+    "TrendingNiche":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "name":
+          "type": "string"
+        "members":
+          "type": "integer"
+          "format": "int32"
+        "joinedToday":
+          "type": "integer"
+          "format": "int32"
+        "iconUrl":
+          "type": "string"
+    "UnreadCount":
+      "type": "object"
+      "properties":
+        "count":
+          "type": "integer"
+          "format": "int32"
+    "UpdateContentPreferences":
+      "type": "object"
+      "properties":
+        "sensitiveFilter":
+          "type": "string"
+          "pattern": "veil|hide|show"
+        "autoHideReported":
+          "type": "boolean"
+    "UpdateProfileRequest":
+      "type": "object"
+      "properties":
+        "name":
+          "type": "string"
+          "maxLength": 50
+          "minLength": 1
+          "pattern": ".*\\S.*"
+        "bio":
+          "type": "string"
+          "maxLength": 300
+          "minLength": 0
+        "handle":
+          "type": "string"
+          "maxLength": 30
+          "minLength": 0
+    "UpdateSettings":
+      "type": "object"
+      "properties":
+        "pushReactions":
+          "type": "boolean"
+        "pushComments":
+          "type": "boolean"
+        "pushFollows":
+          "type": "boolean"
+        "pushMentions":
+          "type": "boolean"
+        "pushReshares":
+          "type": "boolean"
+        "quietHoursEnabled":
+          "type": "boolean"
+        "quietHoursStart":
+          "type": "string"
+          "pattern": "([01]\\d|2[0-3]):[0-5]\\d"
+        "quietHoursEnd":
+          "type": "string"
+          "pattern": "([01]\\d|2[0-3]):[0-5]\\d"
+    "UpdateSettingsRequest":
+      "type": "object"
+      "properties":
+        "notifications":
+          "$ref": "#/components/schemas/UpdateSettings"
+        "content":
+          "$ref": "#/components/schemas/UpdateContentPreferences"
+    "UserBrief":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "name":
+          "type": "string"
+        "handle":
+          "type": "string"
+        "avatarUrl":
+          "type": "string"
+        "verified":
+          "type": "boolean"
+    "UserProfileResponse":
+      "type": "object"
+      "properties":
+        "id":
+          "type": "string"
+          "format": "uuid"
+        "name":
+          "type": "string"
+        "handle":
+          "type": "string"
+        "bio":
+          "type": "string"
+        "avatarUrl":
+          "type": "string"
+        "coverUrl":
+          "type": "string"
+        "verified":
+          "type": "boolean"
+        "followers":
+          "type": "integer"
+          "format": "int32"
+        "following":
+          "type": "integer"
+          "format": "int32"
+        "postCount":
+          "type": "integer"
+          "format": "int32"
+        "totalViews":
+          "type": "integer"
+          "format": "int64"
+        "niches":
+          "type": "array"
+          "items":
+            "type": "string"
+        "isFollowing":
+          "type": "boolean"
+        "isYou":
+          "type": "boolean"
+    "VerdictRequest":
+      "type": "object"
+      "properties":
+        "verdict":
+          "type": "string"
+          "minLength": 1
+          "pattern": "keep|remove|ban"
+      "required":
+        - "verdict"
+    "VerdictResponse":
+      "type": "object"
+      "properties":
+        "reportId":
+          "type": "string"
+          "format": "uuid"
+        "verdict":
+          "type": "string"
+        "resolved":
+          "type": "integer"
+          "format": "int32"
+    "VerifyPhoneRequest":
+      "type": "object"
+      "properties":
+        "challengeId":
+          "type": "string"
+          "format": "uuid"
+        "code":
+          "type": "string"
+          "minLength": 1
+          "pattern": "^[0-9]{4,10}$"
+      "required":
+        - "challengeId"
+        - "code"
+    "VerifyPhoneResponse":
+      "type": "object"
+      "properties":
+        "session":
+          "$ref": "#/components/schemas/SessionDto"
+        "isNewUser":
+          "type": "boolean"
+    "ViewReport":
+      "type": "object"
+      "properties":
+        "postId":
+          "type": "string"
+          "format": "uuid"
+        "watchedMs":
+          "type": "integer"
+          "format": "int32"
+          "maximum": 86400000
+          "minimum": 0
+      "required":
+        - "postId"
+    "ViewsRequest":
+      "type": "object"
+      "properties":
+        "views":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/ViewReport"
+          "minItems": 1
+      "required":
+        - "views"
+    "ViewsResponse":
+      "type": "object"
+      "properties":
+        "received":
+          "type": "integer"
+          "format": "int32"
+        "qualified":
+          "type": "integer"
+          "format": "int32"
+  "securitySchemes":
+    "supabaseJwt":
+      "type": "http"
+      "scheme": "bearer"
+      "bearerFormat": "JWT"
+"tags":
+  - "name": "Account"
+  - "name": "Activity"
+  - "name": "App config"
+  - "name": "Auth"
+  - "name": "Collections"
+  - "name": "Communities"
+  - "name": "Feed"
+  - "name": "Graph"
+  - "name": "Niches"
+  - "name": "Onboarding"
+  - "name": "Posts"
+  - "name": "Profile"
+  - "name": "Reactions & comments"
+  - "name": "Safety"
+  - "name": "Search"
+  - "name": "Service"
+  - "name": "Sharing"
+  - "name": "Stories, drafts & insights"
+  - "name": "Streams"
+  - "name": "Uploads"

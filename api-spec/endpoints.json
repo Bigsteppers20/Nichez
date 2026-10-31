@@ -1,0 +1,2668 @@
+{
+  "name": "Nichez API",
+  "version": "v1",
+  "baseUrls": {
+    "production": "https://nichez-api.onrender.com/api/v1",
+    "local": "http://localhost:8080/api/v1"
+  },
+  "auth": {
+    "type": "bearer",
+    "header": "Authorization: Bearer <Supabase access token>",
+    "obtainToken": "POST https://bmfxcbacewsfbwfonzat.supabase.co/auth/v1/token?grant_type=password with header apikey: <anon key> and body { email, password }"
+  },
+  "errors": "application/problem+json: { type, title, status, detail, code, requestId, errors? } (docs/API_ERRORS.md)",
+  "pagination": "Lists return { items, nextCursor }; pass ?cursor=<nextCursor>&limit=<n>",
+  "count": 125,
+  "endpoints": [
+    {
+      "group": "Account",
+      "method": "DELETE",
+      "path": "/api/v1/me",
+      "relativePath": "/me",
+      "operationId": "delete",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "202": "DeletionScheduled"
+      }
+    },
+    {
+      "group": "Account",
+      "method": "POST",
+      "path": "/api/v1/me/data-export",
+      "relativePath": "/me/data-export",
+      "operationId": "export",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "202": "ExportRequested"
+      }
+    },
+    {
+      "group": "Account",
+      "method": "POST",
+      "path": "/api/v1/me/deactivate",
+      "relativePath": "/me/deactivate",
+      "operationId": "deactivate",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "Account",
+      "method": "POST",
+      "path": "/api/v1/me/deletion/cancel",
+      "relativePath": "/me/deletion/cancel",
+      "operationId": "cancelDeletion",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "Account",
+      "method": "GET",
+      "path": "/api/v1/me/settings",
+      "relativePath": "/me/settings",
+      "operationId": "settings",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "SettingsResponse"
+      }
+    },
+    {
+      "group": "Account",
+      "method": "PATCH",
+      "path": "/api/v1/me/settings",
+      "relativePath": "/me/settings",
+      "operationId": "update",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "UpdateSettingsRequest",
+        "example": {
+          "notifications": {
+            "pushReactions": false,
+            "pushComments": false,
+            "pushFollows": false,
+            "pushMentions": false,
+            "pushReshares": false,
+            "quietHoursEnabled": false,
+            "quietHoursStart": "string",
+            "quietHoursEnd": "string"
+          },
+          "content": {
+            "sensitiveFilter": "string",
+            "autoHideReported": false
+          }
+        }
+      },
+      "responses": {
+        "200": "SettingsResponse"
+      }
+    },
+    {
+      "group": "Activity",
+      "method": "DELETE",
+      "path": "/api/v1/devices/{token}",
+      "relativePath": "/devices/{token}",
+      "operationId": "removeDevice",
+      "public": false,
+      "pathParams": [
+        "token"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "Activity",
+      "method": "GET",
+      "path": "/api/v1/me/activity",
+      "relativePath": "/me/activity",
+      "operationId": "list_3",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "filter",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPageActivityItemResponse"
+      }
+    },
+    {
+      "group": "Activity",
+      "method": "POST",
+      "path": "/api/v1/me/activity/read",
+      "relativePath": "/me/activity/read",
+      "operationId": "readAll",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "Activity",
+      "method": "GET",
+      "path": "/api/v1/me/activity/unread-count",
+      "relativePath": "/me/activity/unread-count",
+      "operationId": "unreadCount",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "UnreadCount"
+      }
+    },
+    {
+      "group": "Activity",
+      "method": "GET",
+      "path": "/api/v1/me/notification-settings",
+      "relativePath": "/me/notification-settings",
+      "operationId": "settings_1",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "Settings"
+      }
+    },
+    {
+      "group": "Activity",
+      "method": "PATCH",
+      "path": "/api/v1/me/notification-settings",
+      "relativePath": "/me/notification-settings",
+      "operationId": "patch_1",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "UpdateSettings",
+        "example": {
+          "pushReactions": false,
+          "pushComments": false,
+          "pushFollows": false,
+          "pushMentions": false,
+          "pushReshares": false,
+          "quietHoursEnabled": false,
+          "quietHoursStart": "string",
+          "quietHoursEnd": "string"
+        }
+      },
+      "responses": {
+        "200": "Settings"
+      }
+    },
+    {
+      "group": "Activity",
+      "method": "PUT",
+      "path": "/api/v1/me/preferences/push",
+      "relativePath": "/me/preferences/push",
+      "operationId": "put_1",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "UpdateSettings",
+        "example": {
+          "pushReactions": false,
+          "pushComments": false,
+          "pushFollows": false,
+          "pushMentions": false,
+          "pushReshares": false,
+          "quietHoursEnabled": false,
+          "quietHoursStart": "string",
+          "quietHoursEnd": "string"
+        }
+      },
+      "responses": {
+        "200": "Settings"
+      }
+    },
+    {
+      "group": "Activity",
+      "method": "PUT",
+      "path": "/api/v1/me/push-token",
+      "relativePath": "/me/push-token",
+      "operationId": "registerDevice",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "RegisterDevice",
+        "example": {
+          "token": "string",
+          "platform": "string"
+        }
+      },
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "Activity",
+      "method": "POST",
+      "path": "/api/v1/notifications/{id}/read",
+      "relativePath": "/notifications/{id}/read",
+      "operationId": "read",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "App config",
+      "method": "GET",
+      "path": "/api/v1/config",
+      "relativePath": "/config",
+      "operationId": "config",
+      "public": true,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "AppConfig"
+      }
+    },
+    {
+      "group": "Auth",
+      "method": "POST",
+      "path": "/api/v1/auth/logout",
+      "relativePath": "/auth/logout",
+      "operationId": "logout",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "Auth",
+      "method": "POST",
+      "path": "/api/v1/auth/phone/resend",
+      "relativePath": "/auth/phone/resend",
+      "operationId": "resend",
+      "public": true,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "ResendPhoneRequest",
+        "example": {
+          "challengeId": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "responses": {
+        "200": "ResendPhoneResponse"
+      }
+    },
+    {
+      "group": "Auth",
+      "method": "POST",
+      "path": "/api/v1/auth/phone/start",
+      "relativePath": "/auth/phone/start",
+      "operationId": "start",
+      "public": true,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "StartPhoneRequest",
+        "example": {
+          "dialCode": "string",
+          "nationalNumber": "string"
+        }
+      },
+      "responses": {
+        "200": "StartPhoneResponse"
+      }
+    },
+    {
+      "group": "Auth",
+      "method": "POST",
+      "path": "/api/v1/auth/phone/verify",
+      "relativePath": "/auth/phone/verify",
+      "operationId": "verify",
+      "public": true,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "VerifyPhoneRequest",
+        "example": {
+          "challengeId": "00000000-0000-0000-0000-000000000000",
+          "code": "string"
+        }
+      },
+      "responses": {
+        "200": "VerifyPhoneResponse"
+      }
+    },
+    {
+      "group": "Collections",
+      "method": "PATCH",
+      "path": "/api/v1/collections/{id}",
+      "relativePath": "/collections/{id}",
+      "operationId": "rename",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "CollectionRequest",
+        "example": {
+          "name": "string"
+        }
+      },
+      "responses": {
+        "200": "CollectionResponse"
+      }
+    },
+    {
+      "group": "Collections",
+      "method": "DELETE",
+      "path": "/api/v1/collections/{id}",
+      "relativePath": "/collections/{id}",
+      "operationId": "delete_1",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "Collections",
+      "method": "PUT",
+      "path": "/api/v1/collections/{id}/posts/{postId}",
+      "relativePath": "/collections/{id}/posts/{postId}",
+      "operationId": "addPost",
+      "public": false,
+      "pathParams": [
+        "id",
+        "postId"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "Collections",
+      "method": "DELETE",
+      "path": "/api/v1/collections/{id}/posts/{postId}",
+      "relativePath": "/collections/{id}/posts/{postId}",
+      "operationId": "removePost",
+      "public": false,
+      "pathParams": [
+        "id",
+        "postId"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "Collections",
+      "method": "GET",
+      "path": "/api/v1/me/collections",
+      "relativePath": "/me/collections",
+      "operationId": "list_1",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPageCollectionResponse"
+      }
+    },
+    {
+      "group": "Collections",
+      "method": "POST",
+      "path": "/api/v1/me/collections",
+      "relativePath": "/me/collections",
+      "operationId": "create_3",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "CollectionRequest",
+        "example": {
+          "name": "string"
+        }
+      },
+      "responses": {
+        "200": "CollectionResponse"
+      }
+    },
+    {
+      "group": "Collections",
+      "method": "GET",
+      "path": "/api/v1/me/collections/{id}",
+      "relativePath": "/me/collections/{id}",
+      "operationId": "posts_1",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPagePostResponse"
+      }
+    },
+    {
+      "group": "Collections",
+      "method": "GET",
+      "path": "/api/v1/me/saved",
+      "relativePath": "/me/saved",
+      "operationId": "saved",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPagePostResponse"
+      }
+    },
+    {
+      "group": "Collections",
+      "method": "PUT",
+      "path": "/api/v1/posts/{id}/save",
+      "relativePath": "/posts/{id}/save",
+      "operationId": "save",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": false,
+        "schema": "SaveRequest",
+        "example": {
+          "collectionId": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "responses": {
+        "200": "SaveState"
+      }
+    },
+    {
+      "group": "Collections",
+      "method": "DELETE",
+      "path": "/api/v1/posts/{id}/save",
+      "relativePath": "/posts/{id}/save",
+      "operationId": "unsave",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "SaveState"
+      }
+    },
+    {
+      "group": "Communities",
+      "method": "GET",
+      "path": "/api/v1/communities",
+      "relativePath": "/communities",
+      "operationId": "list_2",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "tab",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "q",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPageCommunityResponse"
+      }
+    },
+    {
+      "group": "Communities",
+      "method": "POST",
+      "path": "/api/v1/communities",
+      "relativePath": "/communities",
+      "operationId": "create_4",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "CreateCommunityRequest",
+        "example": {
+          "name": "string",
+          "description": "string",
+          "emoji": "string",
+          "coverColor": "string",
+          "homeNicheId": "00000000-0000-0000-0000-000000000000",
+          "isPrivate": false,
+          "rules": [
+            "string"
+          ]
+        }
+      },
+      "responses": {
+        "200": "CommunityResponse"
+      }
+    },
+    {
+      "group": "Communities",
+      "method": "GET",
+      "path": "/api/v1/communities/discover",
+      "relativePath": "/communities/discover",
+      "operationId": "discover",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "q",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPageCommunityResponse"
+      }
+    },
+    {
+      "group": "Communities",
+      "method": "GET",
+      "path": "/api/v1/communities/{id}",
+      "relativePath": "/communities/{id}",
+      "operationId": "get_1",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CommunityResponse"
+      }
+    },
+    {
+      "group": "Communities",
+      "method": "GET",
+      "path": "/api/v1/communities/{id}/invite-link",
+      "relativePath": "/communities/{id}/invite-link",
+      "operationId": "inviteLink_1",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "object"
+      }
+    },
+    {
+      "group": "Communities",
+      "method": "POST",
+      "path": "/api/v1/communities/{id}/invites",
+      "relativePath": "/communities/{id}/invites",
+      "operationId": "invite",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "InviteRequest",
+        "example": {
+          "userIds": [
+            "00000000-0000-0000-0000-000000000000"
+          ]
+        }
+      },
+      "responses": {
+        "200": "InviteResult"
+      }
+    },
+    {
+      "group": "Communities",
+      "method": "POST",
+      "path": "/api/v1/communities/{id}/join",
+      "relativePath": "/communities/{id}/join",
+      "operationId": "join_1",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "JoinState"
+      }
+    },
+    {
+      "group": "Communities",
+      "method": "DELETE",
+      "path": "/api/v1/communities/{id}/join",
+      "relativePath": "/communities/{id}/join",
+      "operationId": "leave_1",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "JoinState"
+      }
+    },
+    {
+      "group": "Communities",
+      "method": "GET",
+      "path": "/api/v1/communities/{id}/members",
+      "relativePath": "/communities/{id}/members",
+      "operationId": "members",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [
+        {
+          "name": "filter",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPageMemberItem"
+      }
+    },
+    {
+      "group": "Communities",
+      "method": "PATCH",
+      "path": "/api/v1/communities/{id}/members/{userId}",
+      "relativePath": "/communities/{id}/members/{userId}",
+      "operationId": "changeRole",
+      "public": false,
+      "pathParams": [
+        "id",
+        "userId"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "ChangeRoleRequest",
+        "example": {
+          "role": "string"
+        }
+      },
+      "responses": {
+        "200": "MemberItem"
+      }
+    },
+    {
+      "group": "Communities",
+      "method": "DELETE",
+      "path": "/api/v1/communities/{id}/members/{userId}",
+      "relativePath": "/communities/{id}/members/{userId}",
+      "operationId": "removeMember",
+      "public": false,
+      "pathParams": [
+        "id",
+        "userId"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "Communities",
+      "method": "GET",
+      "path": "/api/v1/communities/{id}/posts",
+      "relativePath": "/communities/{id}/posts",
+      "operationId": "posts_2",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPagePostResponse"
+      }
+    },
+    {
+      "group": "Communities",
+      "method": "POST",
+      "path": "/api/v1/communities/{id}/requests/{userId}/approve",
+      "relativePath": "/communities/{id}/requests/{userId}/approve",
+      "operationId": "approve",
+      "public": false,
+      "pathParams": [
+        "id",
+        "userId"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "MemberItem"
+      }
+    },
+    {
+      "group": "Communities",
+      "method": "POST",
+      "path": "/api/v1/communities/{id}/requests/{userId}/deny",
+      "relativePath": "/communities/{id}/requests/{userId}/deny",
+      "operationId": "deny",
+      "public": false,
+      "pathParams": [
+        "id",
+        "userId"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "Communities",
+      "method": "GET",
+      "path": "/api/v1/communities/{id}/rules",
+      "relativePath": "/communities/{id}/rules",
+      "operationId": "rules",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "RulesResponse"
+      }
+    },
+    {
+      "group": "Feed",
+      "method": "GET",
+      "path": "/api/v1/feed",
+      "relativePath": "/feed",
+      "operationId": "home",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "niche",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPagePostResponse"
+      }
+    },
+    {
+      "group": "Feed",
+      "method": "GET",
+      "path": "/api/v1/feed/niches",
+      "relativePath": "/feed/niches",
+      "operationId": "tabs",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPageMyNiche"
+      }
+    },
+    {
+      "group": "Feed",
+      "method": "GET",
+      "path": "/api/v1/niches/{id}/feed",
+      "relativePath": "/niches/{id}/feed",
+      "operationId": "nicheFeed",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPagePostResponse"
+      }
+    },
+    {
+      "group": "Graph",
+      "method": "GET",
+      "path": "/api/v1/creators/suggested",
+      "relativePath": "/creators/suggested",
+      "operationId": "suggested",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPageSuggestedCreator"
+      }
+    },
+    {
+      "group": "Graph",
+      "method": "POST",
+      "path": "/api/v1/me/follows",
+      "relativePath": "/me/follows",
+      "operationId": "followMany",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "FollowManyRequest",
+        "example": {
+          "userIds": [
+            "00000000-0000-0000-0000-000000000000"
+          ]
+        }
+      },
+      "responses": {
+        "200": "FollowManyResponse"
+      }
+    },
+    {
+      "group": "Graph",
+      "method": "POST",
+      "path": "/api/v1/users/{id}/follow",
+      "relativePath": "/users/{id}/follow",
+      "operationId": "follow",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "FollowState"
+      }
+    },
+    {
+      "group": "Graph",
+      "method": "DELETE",
+      "path": "/api/v1/users/{id}/follow",
+      "relativePath": "/users/{id}/follow",
+      "operationId": "unfollow",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "FollowState"
+      }
+    },
+    {
+      "group": "Graph",
+      "method": "GET",
+      "path": "/api/v1/users/{id}/followers",
+      "relativePath": "/users/{id}/followers",
+      "operationId": "people",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [
+        {
+          "name": "filter",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "q",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPagePersonItem"
+      }
+    },
+    {
+      "group": "Niches",
+      "method": "GET",
+      "path": "/api/v1/me/niches",
+      "relativePath": "/me/niches",
+      "operationId": "mine",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPageMyNiche"
+      }
+    },
+    {
+      "group": "Niches",
+      "method": "PUT",
+      "path": "/api/v1/me/niches",
+      "relativePath": "/me/niches",
+      "operationId": "setPicks",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "SetNichesRequest",
+        "example": {
+          "nicheIds": [
+            "00000000-0000-0000-0000-000000000000"
+          ]
+        }
+      },
+      "responses": {
+        "200": "CursorPageMyNiche"
+      }
+    },
+    {
+      "group": "Niches",
+      "method": "POST",
+      "path": "/api/v1/niches",
+      "relativePath": "/niches",
+      "operationId": "create_2",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "CreateNicheRequest",
+        "example": {
+          "name": "string"
+        }
+      },
+      "responses": {
+        "200": "CreatedNiche"
+      }
+    },
+    {
+      "group": "Niches",
+      "method": "GET",
+      "path": "/api/v1/niches/taxonomy",
+      "relativePath": "/niches/taxonomy",
+      "operationId": "taxonomy",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPageGroup"
+      }
+    },
+    {
+      "group": "Niches",
+      "method": "GET",
+      "path": "/api/v1/niches/{id}/invite-link",
+      "relativePath": "/niches/{id}/invite-link",
+      "operationId": "inviteLink",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "object"
+      }
+    },
+    {
+      "group": "Niches",
+      "method": "POST",
+      "path": "/api/v1/niches/{id}/join",
+      "relativePath": "/niches/{id}/join",
+      "operationId": "join",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "Membership"
+      }
+    },
+    {
+      "group": "Niches",
+      "method": "DELETE",
+      "path": "/api/v1/niches/{id}/join",
+      "relativePath": "/niches/{id}/join",
+      "operationId": "leave",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "Membership"
+      }
+    },
+    {
+      "group": "Niches",
+      "method": "GET",
+      "path": "/api/v1/niches/{id}/stats",
+      "relativePath": "/niches/{id}/stats",
+      "operationId": "stats",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "NicheStatsResponse"
+      }
+    },
+    {
+      "group": "Onboarding",
+      "method": "GET",
+      "path": "/api/v1/handles/check",
+      "relativePath": "/handles/check",
+      "operationId": "check",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "handle",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "HandleCheckResponse"
+      }
+    },
+    {
+      "group": "Onboarding",
+      "method": "PUT",
+      "path": "/api/v1/me/handle",
+      "relativePath": "/me/handle",
+      "operationId": "claim",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "ClaimHandleRequest",
+        "example": {
+          "handle": "string"
+        }
+      },
+      "responses": {
+        "200": "ClaimHandleResponse"
+      }
+    },
+    {
+      "group": "Posts",
+      "method": "POST",
+      "path": "/api/v1/posts",
+      "relativePath": "/posts",
+      "operationId": "create",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "CreatePostRequest",
+        "example": {
+          "mediaId": "00000000-0000-0000-0000-000000000000",
+          "caption": "string",
+          "nicheId": "00000000-0000-0000-0000-000000000000",
+          "audience": "string",
+          "allowComments": false,
+          "taggedUserIds": [
+            "00000000-0000-0000-0000-000000000000"
+          ],
+          "communityId": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "responses": {
+        "200": "PostResponse"
+      }
+    },
+    {
+      "group": "Posts",
+      "method": "GET",
+      "path": "/api/v1/posts/{id}",
+      "relativePath": "/posts/{id}",
+      "operationId": "get",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "PostResponse"
+      }
+    },
+    {
+      "group": "Posts",
+      "method": "DELETE",
+      "path": "/api/v1/posts/{id}",
+      "relativePath": "/posts/{id}",
+      "operationId": "delete_2",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "Profile",
+      "method": "GET",
+      "path": "/api/v1/auth/session",
+      "relativePath": "/auth/session",
+      "operationId": "session",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "SessionResponse"
+      }
+    },
+    {
+      "group": "Profile",
+      "method": "GET",
+      "path": "/api/v1/me",
+      "relativePath": "/me",
+      "operationId": "me",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "MeResponse"
+      }
+    },
+    {
+      "group": "Profile",
+      "method": "PATCH",
+      "path": "/api/v1/me",
+      "relativePath": "/me",
+      "operationId": "patch",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "UpdateProfileRequest",
+        "example": {
+          "name": "string",
+          "bio": "string",
+          "handle": "string"
+        }
+      },
+      "responses": {
+        "200": "UserProfileResponse"
+      }
+    },
+    {
+      "group": "Profile",
+      "method": "POST",
+      "path": "/api/v1/me/avatar",
+      "relativePath": "/me/avatar",
+      "operationId": "setAvatar",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "SetImageRequest",
+        "example": {
+          "mediaId": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "responses": {
+        "200": "UserProfileResponse"
+      }
+    },
+    {
+      "group": "Profile",
+      "method": "DELETE",
+      "path": "/api/v1/me/avatar",
+      "relativePath": "/me/avatar",
+      "operationId": "removeAvatar",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "UserProfileResponse"
+      }
+    },
+    {
+      "group": "Profile",
+      "method": "PUT",
+      "path": "/api/v1/me/cover",
+      "relativePath": "/me/cover",
+      "operationId": "setCover",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "SetImageRequest",
+        "example": {
+          "mediaId": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "responses": {
+        "200": "UserProfileResponse"
+      }
+    },
+    {
+      "group": "Profile",
+      "method": "DELETE",
+      "path": "/api/v1/me/cover",
+      "relativePath": "/me/cover",
+      "operationId": "removeCover",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "UserProfileResponse"
+      }
+    },
+    {
+      "group": "Profile",
+      "method": "PUT",
+      "path": "/api/v1/me/profile",
+      "relativePath": "/me/profile",
+      "operationId": "put",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "UpdateProfileRequest",
+        "example": {
+          "name": "string",
+          "bio": "string",
+          "handle": "string"
+        }
+      },
+      "responses": {
+        "200": "UserProfileResponse"
+      }
+    },
+    {
+      "group": "Profile",
+      "method": "GET",
+      "path": "/api/v1/users/{handleOrId}",
+      "relativePath": "/users/{handleOrId}",
+      "operationId": "profile",
+      "public": false,
+      "pathParams": [
+        "handleOrId"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "UserProfileResponse"
+      }
+    },
+    {
+      "group": "Profile",
+      "method": "GET",
+      "path": "/api/v1/users/{id}/posts",
+      "relativePath": "/users/{id}/posts",
+      "operationId": "posts",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [
+        {
+          "name": "tab",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPagePostResponse"
+      }
+    },
+    {
+      "group": "Reactions & comments",
+      "method": "DELETE",
+      "path": "/api/v1/comments/{id}",
+      "relativePath": "/comments/{id}",
+      "operationId": "delete_3",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "Reactions & comments",
+      "method": "PUT",
+      "path": "/api/v1/comments/{id}/reaction",
+      "relativePath": "/comments/{id}/reaction",
+      "operationId": "reactToComment",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": false,
+        "schema": "CommentReactionRequest",
+        "example": {
+          "kind": "string"
+        }
+      },
+      "responses": {
+        "200": "CommentReactionResponse"
+      }
+    },
+    {
+      "group": "Reactions & comments",
+      "method": "DELETE",
+      "path": "/api/v1/comments/{id}/reaction",
+      "relativePath": "/comments/{id}/reaction",
+      "operationId": "clearCommentReaction",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CommentReactionResponse"
+      }
+    },
+    {
+      "group": "Reactions & comments",
+      "method": "GET",
+      "path": "/api/v1/posts/{id}/comments",
+      "relativePath": "/posts/{id}/comments",
+      "operationId": "list",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [
+        {
+          "name": "sort",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPageCommentResponse"
+      }
+    },
+    {
+      "group": "Reactions & comments",
+      "method": "POST",
+      "path": "/api/v1/posts/{id}/comments",
+      "relativePath": "/posts/{id}/comments",
+      "operationId": "create_1",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "CreateCommentRequest",
+        "example": {
+          "body": "string",
+          "parentId": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "responses": {
+        "200": "CommentResponse"
+      }
+    },
+    {
+      "group": "Reactions & comments",
+      "method": "PUT",
+      "path": "/api/v1/posts/{id}/reaction",
+      "relativePath": "/posts/{id}/reaction",
+      "operationId": "react",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "ReactionRequest",
+        "example": {
+          "kind": "string"
+        }
+      },
+      "responses": {
+        "200": "PostReactionResponse"
+      }
+    },
+    {
+      "group": "Reactions & comments",
+      "method": "DELETE",
+      "path": "/api/v1/posts/{id}/reaction",
+      "relativePath": "/posts/{id}/reaction",
+      "operationId": "clearReaction",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "PostReactionResponse"
+      }
+    },
+    {
+      "group": "Safety",
+      "method": "GET",
+      "path": "/api/v1/communities/{id}/moderation/queue",
+      "relativePath": "/communities/{id}/moderation/queue",
+      "operationId": "communityQueue",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [
+        {
+          "name": "tab",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPageReportItem"
+      }
+    },
+    {
+      "group": "Safety",
+      "method": "GET",
+      "path": "/api/v1/me/content-preferences",
+      "relativePath": "/me/content-preferences",
+      "operationId": "preferences",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "ContentPreferencesResponse"
+      }
+    },
+    {
+      "group": "Safety",
+      "method": "PATCH",
+      "path": "/api/v1/me/content-preferences",
+      "relativePath": "/me/content-preferences",
+      "operationId": "updatePreferences",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "UpdateContentPreferences",
+        "example": {
+          "sensitiveFilter": "string",
+          "autoHideReported": false
+        }
+      },
+      "responses": {
+        "200": "ContentPreferencesResponse"
+      }
+    },
+    {
+      "group": "Safety",
+      "method": "PUT",
+      "path": "/api/v1/me/preferences/auto-hide-reported",
+      "relativePath": "/me/preferences/auto-hide-reported",
+      "operationId": "autoHide",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "AutoHideRequest",
+        "example": {
+          "enabled": false
+        }
+      },
+      "responses": {
+        "200": "ContentPreferencesResponse"
+      }
+    },
+    {
+      "group": "Safety",
+      "method": "GET",
+      "path": "/api/v1/me/restrictions",
+      "relativePath": "/me/restrictions",
+      "operationId": "restrictions",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "type",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPageRestrictionItem"
+      }
+    },
+    {
+      "group": "Safety",
+      "method": "GET",
+      "path": "/api/v1/niches/{id}/mod-queue",
+      "relativePath": "/niches/{id}/mod-queue",
+      "operationId": "nicheQueue",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [
+        {
+          "name": "tab",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPageReportItem"
+      }
+    },
+    {
+      "group": "Safety",
+      "method": "GET",
+      "path": "/api/v1/niches/{id}/report-reasons",
+      "relativePath": "/niches/{id}/report-reasons",
+      "operationId": "nicheReasons",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPageReportReason"
+      }
+    },
+    {
+      "group": "Safety",
+      "method": "POST",
+      "path": "/api/v1/posts/{id}/report",
+      "relativePath": "/posts/{id}/report",
+      "operationId": "reportPost",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "PostReportRequest",
+        "example": {
+          "reasonId": "string",
+          "note": "string"
+        }
+      },
+      "responses": {
+        "200": "ReportReceived"
+      }
+    },
+    {
+      "group": "Safety",
+      "method": "GET",
+      "path": "/api/v1/report-reasons",
+      "relativePath": "/report-reasons",
+      "operationId": "reasons",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPageReportReason"
+      }
+    },
+    {
+      "group": "Safety",
+      "method": "POST",
+      "path": "/api/v1/reports",
+      "relativePath": "/reports",
+      "operationId": "report_1",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "ReportRequest",
+        "example": {
+          "targetType": "string",
+          "targetId": "00000000-0000-0000-0000-000000000000",
+          "reasonId": "string",
+          "note": "string"
+        }
+      },
+      "responses": {
+        "200": "ReportReceived"
+      }
+    },
+    {
+      "group": "Safety",
+      "method": "POST",
+      "path": "/api/v1/reports/{id}/verdict",
+      "relativePath": "/reports/{id}/verdict",
+      "operationId": "verdict",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "VerdictRequest",
+        "example": {
+          "verdict": "string"
+        }
+      },
+      "responses": {
+        "200": "VerdictResponse"
+      }
+    },
+    {
+      "group": "Safety",
+      "method": "POST",
+      "path": "/api/v1/users/{id}/block",
+      "relativePath": "/users/{id}/block",
+      "operationId": "block",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "Safety",
+      "method": "DELETE",
+      "path": "/api/v1/users/{id}/block",
+      "relativePath": "/users/{id}/block",
+      "operationId": "unblock",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "Safety",
+      "method": "POST",
+      "path": "/api/v1/users/{id}/mute",
+      "relativePath": "/users/{id}/mute",
+      "operationId": "mute",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "Safety",
+      "method": "DELETE",
+      "path": "/api/v1/users/{id}/mute",
+      "relativePath": "/users/{id}/mute",
+      "operationId": "unmute",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "Search",
+      "method": "GET",
+      "path": "/api/v1/explore/recent",
+      "relativePath": "/explore/recent",
+      "operationId": "recent",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPagePostResponse"
+      }
+    },
+    {
+      "group": "Search",
+      "method": "GET",
+      "path": "/api/v1/explore/trending",
+      "relativePath": "/explore/trending",
+      "operationId": "trending",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPageTrendingNiche"
+      }
+    },
+    {
+      "group": "Search",
+      "method": "GET",
+      "path": "/api/v1/niches/promoted",
+      "relativePath": "/niches/promoted",
+      "operationId": "promoted",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "q",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "PromotedResponse"
+      }
+    },
+    {
+      "group": "Search",
+      "method": "GET",
+      "path": "/api/v1/search",
+      "relativePath": "/search",
+      "operationId": "results",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "q",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "SearchPage"
+      }
+    },
+    {
+      "group": "Search",
+      "method": "GET",
+      "path": "/api/v1/search/suggest",
+      "relativePath": "/search/suggest",
+      "operationId": "suggest",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "q",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPageSuggestion"
+      }
+    },
+    {
+      "group": "Search",
+      "method": "GET",
+      "path": "/api/v1/users/search",
+      "relativePath": "/users/search",
+      "operationId": "people_1",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "q",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPagePersonItem"
+      }
+    },
+    {
+      "group": "Service",
+      "method": "GET",
+      "path": "/api/v1/ping",
+      "relativePath": "/ping",
+      "operationId": "ping",
+      "public": true,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "PingResponse"
+      }
+    },
+    {
+      "group": "Sharing",
+      "method": "GET",
+      "path": "/api/v1/links/{code}",
+      "relativePath": "/links/{code}",
+      "operationId": "resolve",
+      "public": true,
+      "pathParams": [
+        "code"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "PublicPost"
+      }
+    },
+    {
+      "group": "Sharing",
+      "method": "GET",
+      "path": "/api/v1/me/share-targets",
+      "relativePath": "/me/share-targets",
+      "operationId": "shareTargets",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPagePersonItem"
+      }
+    },
+    {
+      "group": "Sharing",
+      "method": "GET",
+      "path": "/api/v1/posts/{id}/link",
+      "relativePath": "/posts/{id}/link",
+      "operationId": "link",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "LinkResponse"
+      }
+    },
+    {
+      "group": "Sharing",
+      "method": "POST",
+      "path": "/api/v1/posts/{id}/not-interested",
+      "relativePath": "/posts/{id}/not-interested",
+      "operationId": "notInterested",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "Sharing",
+      "method": "POST",
+      "path": "/api/v1/posts/{id}/reshare",
+      "relativePath": "/posts/{id}/reshare",
+      "operationId": "crossPost",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "CrossPostRequest",
+        "example": {
+          "nicheId": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "responses": {
+        "200": "CrossPostResponse"
+      }
+    },
+    {
+      "group": "Sharing",
+      "method": "POST",
+      "path": "/api/v1/posts/{id}/reshares",
+      "relativePath": "/posts/{id}/reshares",
+      "operationId": "reshare",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "ReshareResponse"
+      }
+    },
+    {
+      "group": "Sharing",
+      "method": "POST",
+      "path": "/api/v1/posts/{id}/shares",
+      "relativePath": "/posts/{id}/shares",
+      "operationId": "share",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "ShareRequest",
+        "example": {
+          "channel": "string"
+        }
+      },
+      "responses": {
+        "200": "ShareCount"
+      }
+    },
+    {
+      "group": "Stories, drafts & insights",
+      "method": "DELETE",
+      "path": "/api/v1/drafts/{id}",
+      "relativePath": "/drafts/{id}",
+      "operationId": "deleteDraft",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "Stories, drafts & insights",
+      "method": "GET",
+      "path": "/api/v1/me/analytics",
+      "relativePath": "/me/analytics",
+      "operationId": "myAnalytics",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "MyAnalytics"
+      }
+    },
+    {
+      "group": "Stories, drafts & insights",
+      "method": "GET",
+      "path": "/api/v1/me/drafts",
+      "relativePath": "/me/drafts",
+      "operationId": "listDrafts",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "DraftsPage"
+      }
+    },
+    {
+      "group": "Stories, drafts & insights",
+      "method": "POST",
+      "path": "/api/v1/me/drafts",
+      "relativePath": "/me/drafts",
+      "operationId": "createDraft",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "DraftRequest",
+        "example": {
+          "mediaId": "00000000-0000-0000-0000-000000000000",
+          "nicheId": "00000000-0000-0000-0000-000000000000",
+          "caption": "string",
+          "audience": "string",
+          "allowComments": false
+        }
+      },
+      "responses": {
+        "200": "DraftResponse"
+      }
+    },
+    {
+      "group": "Stories, drafts & insights",
+      "method": "GET",
+      "path": "/api/v1/me/post-targets",
+      "relativePath": "/me/post-targets",
+      "operationId": "targets",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPagePostTarget"
+      }
+    },
+    {
+      "group": "Stories, drafts & insights",
+      "method": "GET",
+      "path": "/api/v1/posts/{id}/analytics",
+      "relativePath": "/posts/{id}/analytics",
+      "operationId": "analytics",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "PostAnalytics"
+      }
+    },
+    {
+      "group": "Stories, drafts & insights",
+      "method": "GET",
+      "path": "/api/v1/posts/{id}/status",
+      "relativePath": "/posts/{id}/status",
+      "operationId": "status",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "PostStatusResponse"
+      }
+    },
+    {
+      "group": "Stories, drafts & insights",
+      "method": "GET",
+      "path": "/api/v1/stories",
+      "relativePath": "/stories",
+      "operationId": "storyRow",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "CursorPageStoryGroup"
+      }
+    },
+    {
+      "group": "Stories, drafts & insights",
+      "method": "POST",
+      "path": "/api/v1/stories",
+      "relativePath": "/stories",
+      "operationId": "createStory",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "StoryRequest",
+        "example": {
+          "mediaId": "00000000-0000-0000-0000-000000000000",
+          "body": "string",
+          "color": "string",
+          "hiddenFromUserIds": [
+            "00000000-0000-0000-0000-000000000000"
+          ],
+          "allowReplies": false,
+          "allowSharing": false
+        }
+      },
+      "responses": {
+        "200": "StoryItem"
+      }
+    },
+    {
+      "group": "Stories, drafts & insights",
+      "method": "POST",
+      "path": "/api/v1/stories/{id}/views",
+      "relativePath": "/stories/{id}/views",
+      "operationId": "viewStory",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": null
+      }
+    },
+    {
+      "group": "Stories, drafts & insights",
+      "method": "GET",
+      "path": "/api/v1/users/{id}/stories",
+      "relativePath": "/users/{id}/stories",
+      "operationId": "storiesOf",
+      "public": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": null,
+      "responses": {
+        "200": "StoryGroup"
+      }
+    },
+    {
+      "group": "Streams",
+      "method": "POST",
+      "path": "/api/v1/views",
+      "relativePath": "/views",
+      "operationId": "report",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "ViewsRequest",
+        "example": {
+          "views": [
+            {
+              "postId": "00000000-0000-0000-0000-000000000000",
+              "watchedMs": 0
+            }
+          ]
+        }
+      },
+      "responses": {
+        "202": "ViewsResponse"
+      }
+    },
+    {
+      "group": "Uploads",
+      "method": "POST",
+      "path": "/api/v1/uploads/sign",
+      "relativePath": "/uploads/sign",
+      "operationId": "sign",
+      "public": false,
+      "pathParams": [],
+      "queryParams": [],
+      "headers": [],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true,
+        "schema": "SignUploadRequest",
+        "example": {
+          "contentType": "string",
+          "bytes": 0
+        }
+      },
+      "responses": {
+        "200": "SignUploadResponse"
+      }
+    }
+  ]
+}
